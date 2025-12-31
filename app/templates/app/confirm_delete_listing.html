@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Listing - Confirm{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-listing-container {
+        max-width: 700px;
+        margin: 4rem auto;
+        padding: 2rem;
+    }
+
+    .delete-card {
+        background: white;
+        padding: 2.5rem;
+        border: 1px solid var(--border-color);
+        border-left: 4px solid var(--error-color);
+    }
+
+    .delete-icon {
+        width: 80px;
+        height: 80px;
+        background: #fee2e2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 2.5rem;
+        color: var(--error-color);
+    }
+
+    .delete-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .delete-header h1 {
+        font-size: 2rem;
+        color: var(--error-color);
+        margin-bottom: 1rem;
+    }
+
+    .delete-header p {
+        color: var(--text-muted);
+        font-size: 1.1rem;
+    }
+
+    .listing-preview {
+        background: var(--bg-light);
+        padding: 1.5rem;
+        border-radius: var(--radius-lg);
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+    }
+
+    .listing-preview-image {
+        width: 120px;
+        height: 120px;
+        border-radius: var(--radius-md);
+        object-fit: cover;
+        flex-shrink: 0;
+    }
+
+    .listing-preview-placeholder {
+        width: 120px;
+        height: 120px;
+        border-radius: var(--radius-md);
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        opacity: 0.5;
+        flex-shrink: 0;
+    }
+
+    .listing-preview-details {
+        flex: 1;
+    }
+
+    .listing-preview-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .listing-preview-meta {
+        color: var(--text-muted);
+        font-size: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .delete-warning {
+        background: #fef2f2;
+        padding: 1.5rem;
+        border-left: 3px solid var(--error-color);
+        border-radius: var(--radius-md);
+        margin-bottom: 2rem;
+    }
+
+    .delete-warning h3 {
+        color: var(--error-color);
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .delete-warning p {
+        color: var(--text-dark);
+        line-height: 1.7;
+        margin: 0;
+    }
+
+    .delete-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-danger {
+        flex: 1;
+        padding: 1rem;
+        background-color: var(--error-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-danger:hover {
+        background-color: #b91c1c;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: 1rem;
+        background-color: white;
+        color: var(--text-dark);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background-color: var(--bg-light);
+        border-color: var(--primary-color);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        gap: 0.75rem;
+        color: var(--primary-dark);
+    }
+
+    @media (max-width: 640px) {
+        .delete-listing-container {
+            padding: 1rem;
+            margin: 2rem auto;
+        }
+
+        .delete-card {
+            padding: 1.5rem;
+        }
+
+        .delete-actions {
+            flex-direction: column-reverse;
+        }
+
+        .listing-preview {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .listing-preview-image,
+        .listing-preview-placeholder {
+            margin: 0 auto;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-listing-container">
+    <a href="{% url 'listing_detail' listing.id %}" class="back-link">
+        ← Back to Listing
+    </a>
+
+    <div class="delete-card">
+        <div class="delete-icon">!</div>
+        
+        <div class="delete-header">
+            <h1>Delete This Listing?</h1>
+            <p>This action cannot be undone</p>
+        </div>
+
+        <!-- Listing Preview -->
+        <div class="listing-preview">
+            {% if listing.image %}
+                <img src="{{ listing.image.url }}" 
+                     alt="{{ listing.title }}" 
+                     class="listing-preview-image">
+            {% else %}
+                <div class="listing-preview-placeholder">
+                    📷
+                </div>
+            {% endif %}
+            
+            <div class="listing-preview-details">
+                <div class="listing-preview-title">{{ listing.title }}</div>
+                <div class="listing-preview-meta">
+                    <span>Posted {{ listing.created_at|date:"F d, Y" }}</span>
+                    {% if listing.views > 0 %}
+                    <span>{{ listing.views }} view{{ listing.views|pluralize }}</span>
+                    {% endif %}
+                    <span>Status: {% if listing.is_active %}Active{% else %}Inactive{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="delete-warning">
+            <h3>Warning: This will permanently delete:</h3>
+            <p>
+                Once you delete this listing, all information will be removed from the database. 
+                This includes the title, description, image, and all associated data. 
+                This action cannot be reversed.
+            </p>
+        </div>
+
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">
+            Are you sure you want to delete "<strong>{{ listing.title }}</strong>"?
+        </p>
+
+        <form method="POST" class="delete-actions">
+            {% csrf_token %}
+            <a href="{% url 'listing_detail' listing.id %}" class="btn-cancel">
+                Cancel, Keep Listing
+            </a>
+            <button type="submit" class="btn-danger">
+                Yes, Delete Permanently
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

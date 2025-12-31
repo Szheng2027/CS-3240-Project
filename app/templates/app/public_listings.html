@@ -1,0 +1,506 @@
+{% extends 'base.html' %}
+
+{% block title %}Browse Listings - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .listings-page {
+        min-height: calc(100vh - 200px);
+    }
+
+    .listings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    /* Page Header */
+    .listings-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .listings-header h1 {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-2);
+    }
+
+    .listings-header p {
+        color: var(--text-light);
+        font-size: var(--font-size-base);
+    }
+
+    /* Search Section */
+    .search-section {
+        background: var(--bg-white);
+        padding: var(--space-5);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--border-light);
+        margin-bottom: var(--space-6);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .search-form {
+        display: flex;
+        gap: var(--space-3);
+    }
+
+    .search-input-wrapper {
+        flex: 1;
+        position: relative;
+    }
+
+    .search-icon {
+        position: absolute;
+        left: var(--space-4);
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-base);
+        font-family: inherit;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .search-input:focus {
+        border-color: var(--primary-color);
+        outline: none;
+        box-shadow: 0 0 0 3px var(--primary-50);
+    }
+
+    .search-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .search-btn {
+        padding: var(--space-3) var(--space-5);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .search-btn:hover {
+        background: var(--primary-dark);
+    }
+
+    .clear-search {
+        padding: var(--space-3) var(--space-4);
+        background: var(--bg-subtle);
+        color: var(--text-base);
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 500;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .clear-search:hover {
+        background: var(--bg-hover);
+    }
+
+    /* Results Info */
+    .results-info {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--space-5);
+        padding: var(--space-3) 0;
+    }
+
+    .results-count {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .results-count strong {
+        color: var(--text-dark);
+        font-weight: 600;
+    }
+
+    .search-term {
+        background: var(--primary-50);
+        color: var(--primary-dark);
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--radius-sm);
+        font-weight: 500;
+    }
+
+    /* Listings Grid */
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--space-5);
+    }
+
+    .listing-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        transition: all var(--transition-base);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        text-decoration: none;
+        color: inherit;
+    }
+
+    .listing-card:hover {
+        border-color: var(--primary-100);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+
+    .listing-card-sold {
+        cursor: default;
+        opacity: 0.8;
+    }
+
+    .listing-card-sold:hover {
+        border-color: var(--border-color);
+        box-shadow: none;
+        transform: translateY(0);
+    }
+
+    .sold-badge {
+        position: absolute;
+        top: var(--space-4);
+        left: var(--space-4);
+        background: rgba(220, 38, 38, 0.95);
+        color: white;
+        padding: var(--space-2) var(--space-6);
+        font-weight: 800;
+        font-size: var(--font-size-xl);
+        letter-spacing: 0.1em;
+        border-radius: var(--radius-md);
+        z-index: 10;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transform: rotate(-5deg);
+    }
+
+    .sold-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 5;
+    }
+
+    .listing-image-container {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: linear-gradient(135deg, var(--primary-50), #e0f2fe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .listing-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform var(--transition-smooth);
+    }
+
+    .listing-card:hover .listing-image {
+        transform: scale(1.05);
+    }
+
+    .listing-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        font-size: var(--font-size-3xl);
+    }
+
+    .listing-content {
+        padding: var(--space-4);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .listing-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-3);
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .listing-meta {
+        margin-top: auto;
+        padding-top: var(--space-3);
+        border-top: 1px solid var(--border-light);
+    }
+
+    .listing-owner {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .owner-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+        border: 2px solid var(--bg-subtle);
+    }
+
+    .owner-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .owner-name {
+        font-size: var(--font-size-sm);
+        color: var(--text-dark);
+        font-weight: 500;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .listing-date {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-12) var(--space-6);
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--bg-subtle);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-4);
+        font-size: var(--font-size-2xl);
+    }
+
+    .empty-state h2 {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-2);
+    }
+
+    .empty-state p {
+        color: var(--text-light);
+        font-size: var(--font-size-base);
+        margin-bottom: var(--space-5);
+        max-width: 400px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .listings-container {
+            padding: var(--space-5) var(--space-4);
+        }
+
+        .listings-header h1 {
+            font-size: var(--font-size-2xl);
+        }
+
+        .search-section {
+            padding: var(--space-4);
+        }
+
+        .search-form {
+            flex-direction: column;
+        }
+
+        .search-input {
+            padding: var(--space-3) var(--space-4) var(--space-3) var(--space-10);
+        }
+
+        .listings-grid {
+            grid-template-columns: 1fr;
+            gap: var(--space-4);
+        }
+
+        .results-info {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: var(--space-2);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="listings-page">
+    <div class="listings-container">
+        <div class="listings-header">
+            <h1>Browse Listings</h1>
+            <p>Find great deals from fellow UVA students</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <form method="GET" action="{% url 'public_listings' %}" class="search-form">
+                <div class="search-input-wrapper">
+                    <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="search-input" 
+                        placeholder="Search textbooks, furniture, electronics..."
+                        value="{{ search_query }}"
+                        aria-label="Search listings">
+                </div>
+                <button type="submit" class="search-btn">
+                    Search
+                </button>
+                {% if search_query %}
+                    <a href="{% url 'public_listings' %}" class="clear-search">Clear</a>
+                {% endif %}
+            </form>
+        </div>
+        
+        <!-- Results Info -->
+        <div class="results-info">
+            {% if search_query %}
+                <p class="results-count">
+                    Found <strong>{{ total_count }}</strong> result{{ total_count|pluralize }} for 
+                    <span class="search-term">{{ search_query }}</span>
+                </p>
+            {% else %}
+                <p class="results-count">
+                    Showing <strong>{{ total_count }}</strong> listing{{ total_count|pluralize }}
+                </p>
+            {% endif %}
+        </div>
+
+        <!-- Listings Grid -->
+        {% if listings %}
+            <div class="listings-grid">
+                {% for listing in listings %}
+                    {% if listing.is_active %}
+                        <a href="{% url 'listing_detail' listing.id %}" class="listing-card">
+                            <div class="listing-image-container">
+                                {% if listing.image %}
+                                    <img src="{{ listing.image.url }}" 
+                                         alt="{{ listing.title }}" 
+                                         class="listing-image"
+                                         loading="lazy">
+                                {% else %}
+                                    <div class="listing-placeholder">📦</div>
+                                {% endif %}
+                            </div>
+                            <div class="listing-content">
+                                <h2 class="listing-title">{{ listing.title }}</h2>
+                                
+                                <div class="listing-meta">
+                                    <div class="listing-owner">
+                                        <img src="{{ listing.owner.profile.image.url }}" 
+                                             alt="{{ listing.owner.profile.get_display_name }}"
+                                             class="owner-avatar"
+                                             loading="lazy">
+                                        <div class="owner-info">
+                                            <div class="owner-name">{{ listing.owner.profile.get_display_name }}</div>
+                                            <div class="listing-date">{{ listing.created_at|date:"M d, Y" }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    {% else %}
+                        <article class="listing-card listing-card-sold">
+                            <div class="listing-image-container">
+                                <div class="sold-overlay"></div>
+                                <div class="sold-badge">SOLD</div>
+                                {% if listing.image %}
+                                    <img src="{{ listing.image.url }}" 
+                                         alt="{{ listing.title }}" 
+                                         class="listing-image"
+                                         loading="lazy">
+                                {% else %}
+                                    <div class="listing-placeholder">📦</div>
+                                {% endif %}
+                            </div>
+                            <div class="listing-content">
+                                <h2 class="listing-title">{{ listing.title }}</h2>
+                                
+                                <div class="listing-meta">
+                                    <div class="listing-owner">
+                                        <img src="{{ listing.owner.profile.image.url }}" 
+                                             alt="{{ listing.owner.profile.get_display_name }}"
+                                             class="owner-avatar"
+                                             loading="lazy">
+                                        <div class="owner-info">
+                                            <div class="owner-name">{{ listing.owner.profile.get_display_name }}</div>
+                                            <div class="listing-date">{{ listing.created_at|date:"M d, Y" }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🔍</div>
+                <h2>No listings found</h2>
+                {% if search_query %}
+                    <p>No results match "{{ search_query }}". Try different keywords or browse all listings.</p>
+                    <a href="{% url 'public_listings' %}" class="btn btn-primary">View All Listings</a>
+                {% else %}
+                    <p>There are no active listings at the moment. Be the first to post something!</p>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-primary">Post a Listing</a>
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

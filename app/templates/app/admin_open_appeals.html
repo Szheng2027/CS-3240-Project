@@ -1,0 +1,592 @@
+{% extends 'base.html' %}
+{% block title %}Ban Appeals - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root {
+    --bg-page: #f8fafc;
+    --card-bg: #ffffff;
+    --border: #e2e8f0;
+    --border-hover: #cbd5e1;
+    --text-primary: #0f172a;
+    --text-muted: #64748b;
+    --accent-blue: #3b82f6;
+    --success: #10b981;
+    --success-bg: #ecfdf5;
+    --success-border: #a7f3d0;
+    --danger: #ef4444;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --pending: #f59e0b;
+    --pending-bg: #fffbeb;
+    --pending-border: #fde68a;
+    --shadow-sm: 0 2px 8px rgba(15,23,42,0.04);
+    --shadow-md: 0 6px 16px rgba(15,23,42,0.06);
+    --shadow-hover: 0 8px 24px rgba(15,23,42,0.1);
+    --radius: 12px;
+  }
+
+  body { background: var(--bg-page); }
+  
+  .appeals-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 24px;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+  }
+
+  .page-header h1 {
+    margin: 0 0 0.5rem;
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+
+  .page-header p {
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 1rem;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-title .badge {
+    background: var(--pending-bg);
+    color: var(--pending);
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border: 1px solid var(--pending-border);
+  }
+
+  .appeals-grid {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 3rem;
+  }
+
+  .appeal-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    gap: 16px;
+  }
+
+  .appeal-card:hover {
+    border-color: var(--accent-blue);
+    box-shadow: var(--shadow-hover);
+    transform: translateY(-2px);
+  }
+
+  .appeal-avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(102,126,234,0.25);
+  }
+
+  .appeal-avatar img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .appeal-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .appeal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+    gap: 16px;
+  }
+
+  .appeal-meta h3 {
+    margin: 0 0 6px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--accent-blue);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .appeal-meta h3::before {
+    content: "📝";
+    font-size: 1rem;
+  }
+
+  .appeal-time {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .appeal-time::before {
+    content: "👤";
+  }
+
+  .appeal-message {
+    background: var(--bg-page);
+    padding: 14px;
+    border-radius: 8px;
+    margin: 12px 0;
+    color: var(--text-primary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    border-left: 3px solid var(--accent-blue);
+  }
+
+  .appeal-evidence {
+    margin: 12px 0;
+  }
+
+  .appeal-evidence a {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--accent-blue);
+    text-decoration: none;
+    font-weight: 600;
+    padding: 6px 12px;
+    background: #eff6ff;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    transition: all 0.15s;
+  }
+
+  .appeal-evidence a::before {
+    content: "📎";
+  }
+
+  .appeal-evidence a:hover {
+    background: #dbeafe;
+    transform: translateX(2px);
+  }
+
+  .appeal-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .input-note {
+    flex: 1;
+    min-width: 240px;
+    padding: 10px 14px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.95rem;
+    transition: all 0.2s;
+  }
+
+  .input-note:focus {
+    outline: none;
+    border-color: var(--accent-blue);
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .btn-accept {
+    background: var(--success);
+    color: white;
+    box-shadow: 0 2px 8px rgba(16,185,129,0.25);
+  }
+
+  .btn-accept:hover {
+    background: #059669;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(16,185,129,0.35);
+  }
+
+  .btn-accept::before {
+    content: "✓";
+    font-size: 1.1rem;
+  }
+
+  .btn-reject {
+    background: var(--danger);
+    color: white;
+    box-shadow: 0 2px 8px rgba(239,68,68,0.25);
+  }
+
+  .btn-reject:hover {
+    background: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(239,68,68,0.35);
+  }
+
+  .btn-reject::before {
+    content: "✕";
+    font-size: 1.1rem;
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--card-bg);
+    border: 2px dashed var(--border);
+    border-radius: var(--radius);
+    color: var(--text-muted);
+  }
+
+  .empty-state::before {
+    content: "📭";
+    display: block;
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Completed section */
+  .completed-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 2px solid var(--border);
+  }
+
+  .completed-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 16px;
+    box-shadow: var(--shadow-sm);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .completed-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .completed-card .appeal-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1rem;
+  }
+
+  .completed-card .appeal-avatar img {
+    width: 48px;
+    height: 48px;
+  }
+
+  .status-badge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .status-badge.accepted {
+    background: var(--success-bg);
+    color: #065f46;
+    border: 1px solid var(--success-border);
+  }
+
+  .status-badge.accepted::before {
+    content: "✓";
+  }
+
+  .status-badge.rejected {
+    background: var(--danger-bg);
+    color: #991b1b;
+    border: 1px solid var(--danger-border);
+  }
+
+  .status-badge.rejected::before {
+    content: "✕";
+  }
+
+  .admin-note {
+    margin-top: 12px;
+    padding: 12px;
+    background: #f1f5f9;
+    border-left: 3px solid var(--success);
+    border-radius: 6px;
+    font-size: 0.95rem;
+  }
+
+  .admin-note strong {
+    color: var(--success);
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 2rem;
+    padding: 1.5rem 0;
+  }
+
+  .page-btn {
+    padding: 10px 18px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-primary);
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+  }
+
+  .page-btn:hover {
+    border-color: var(--accent-blue);
+    background: var(--accent-blue);
+    color: white;
+    transform: translateY(-1px);
+  }
+
+  .page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  .page-info {
+    padding: 10px 18px;
+    background: var(--bg-page);
+    border-radius: 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .appeals-container {
+      padding: 0 16px;
+    }
+
+    .appeal-card {
+      flex-direction: column;
+    }
+
+    .appeal-header {
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .appeal-actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .input-note {
+      width: 100%;
+    }
+
+    .btn {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="appeals-container">
+  <div class="page-header">
+    <h1>Ban Appeals Management</h1>
+    <p>Review and respond to user ban appeals. Accept to unban or reject to keep banned.</p>
+  </div>
+
+  <!-- Pending Appeals -->
+  <div class="section-title">
+    Open Appeals
+    {% if appeals %}
+      <span class="badge">{{ appeals|length }}</span>
+    {% endif %}
+  </div>
+
+  {% if appeals %}
+    <div class="appeals-grid">
+      {% for a in appeals %}
+        <div class="appeal-card"
+             onclick="window.location.href='{% url 'ban_user' a.user.id %}?next={{ request.get_full_path|urlencode }}'"
+             role="link">
+          <div class="appeal-avatar">
+            {% if a.user.profile and a.user.profile.image %}
+              <img src="{{ a.user.profile.image.url }}" alt="{{ a.user.username }}">
+            {% else %}
+              {{ a.user.username|slice:":1"|upper }}
+            {% endif %}
+          </div>
+
+          <div class="appeal-content">
+            <div class="appeal-header">
+              <div class="appeal-meta">
+                <h3>{{ a.subject }}</h3>
+                <div class="appeal-time">
+                  {{ a.user.get_full_name|default:a.user.username }} · {{ a.created_at|date:"M d, Y H:i" }}
+                </div>
+              </div>
+            </div>
+
+            <div class="appeal-message">{{ a.message }}</div>
+
+            {% if a.evidence %}
+              <div class="appeal-evidence">
+                <a href="{{ a.evidence.url }}" target="_blank" onclick="event.stopPropagation();">
+                  View Evidence
+                </a>
+              </div>
+            {% endif %}
+
+            <form method="post" class="appeal-actions" onclick="event.stopPropagation();">
+              {% csrf_token %}
+              <input type="hidden" name="appeal_id" value="{{ a.id }}">
+              <input type="hidden" name="next" value="{{ request.get_full_path }}">
+              
+              <input 
+                name="admin_note" 
+                class="input-note" 
+                placeholder="Optional admin note..."
+                onclick="event.stopPropagation();" 
+                onfocus="event.stopPropagation();"
+              />
+              
+              <button type="submit" name="action" value="accept" class="btn btn-accept" onclick="event.stopPropagation();">
+                Accept
+              </button>
+              <button type="submit" name="action" value="reject" class="btn btn-reject" onclick="event.stopPropagation();">
+                Reject
+              </button>
+            </form>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <strong>No open appeals</strong>
+      <p style="margin-top:8px;">All appeals have been reviewed.</p>
+    </div>
+  {% endif %}
+
+  <!-- Completed Appeals -->
+  <div class="completed-section">
+    <div class="section-title">Recent Completed Appeals</div>
+
+    {% if completed_page.object_list %}
+      {% for c in completed_page %}
+        <div class="completed-card"
+             onclick="window.location.href='{% url 'ban_user' c.user.id %}?next={{ request.get_full_path|urlencode }}'"
+             role="link">
+          <div class="appeal-avatar">
+            {% if c.user.profile and c.user.profile.image %}
+              <img src="{{ c.user.profile.image.url }}" alt="{{ c.user.username }}">
+            {% else %}
+              {{ c.user.username|slice:":1"|upper }}
+            {% endif %}
+          </div>
+
+          <div class="appeal-content">
+            <div class="appeal-header">
+              <div class="appeal-meta">
+                <h3 style="color:var(--text-primary);font-size:1rem;">{{ c.subject }}</h3>
+                <div class="appeal-time">
+                  {{ c.user.get_full_name|default:c.user.username }} · {{ c.responded_at|date:"M d, Y H:i" }}
+                </div>
+              </div>
+              
+              <span class="status-badge {{ c.status }}">
+                {{ c.get_status_display }}
+              </span>
+            </div>
+
+            <div class="appeal-message" style="font-size:0.95rem;">{{ c.message }}</div>
+
+            {% if c.admin_response %}
+              <div class="admin-note">
+                <strong>Admin response:</strong> {{ c.admin_response }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+
+      <!-- Pagination -->
+      <div class="pagination">
+        {% if completed_page.has_previous %}
+          <a href="?page={{ completed_page.previous_page_number }}" class="page-btn">← Previous</a>
+        {% else %}
+          <span class="page-btn disabled">← Previous</span>
+        {% endif %}
+
+        <span class="page-info">
+          Page {{ completed_page.number }} of {{ completed_page.paginator.num_pages }}
+        </span>
+
+        {% if completed_page.has_next %}
+          <a href="?page={{ completed_page.next_page_number }}" class="page-btn">Next →</a>
+        {% else %}
+          <span class="page-btn disabled">Next →</span>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="empty-state">
+        <strong>No completed appeals yet</strong>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

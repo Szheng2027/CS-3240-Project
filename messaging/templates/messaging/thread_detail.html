@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+
+{% block title %}Conversation - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .conversation-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .conversation-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: var(--space-6);
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+
+    /* Header */
+    .conversation-header {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        margin-bottom: var(--space-4);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .conversation-user-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .conversation-avatar {
+        width: 44px;
+        height: 44px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+        color: white;
+        font-weight: 600;
+    }
+
+    .conversation-user-name {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .conversation-status {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-light);
+        text-decoration: none;
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+    }
+
+    .back-link:hover {
+        background: var(--bg-subtle);
+        color: var(--text-dark);
+    }
+
+    /* Messages Area */
+    .messages-area {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        flex: 1;
+        min-height: 400px;
+        max-height: 500px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        margin-bottom: var(--space-4);
+    }
+
+    .message-bubble {
+        display: flex;
+        flex-direction: column;
+        max-width: 70%;
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-lg);
+        word-wrap: break-word;
+    }
+
+    .message-own {
+        align-self: flex-end;
+        background: var(--primary-color);
+        color: white;
+        border-bottom-right-radius: var(--radius-sm);
+    }
+
+    .message-other {
+        align-self: flex-start;
+        background: var(--bg-subtle);
+        color: var(--text-dark);
+        border-bottom-left-radius: var(--radius-sm);
+    }
+
+    .message-sender {
+        font-weight: 600;
+        font-size: var(--font-size-xs);
+        margin-bottom: var(--space-1);
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+    }
+
+    .message-own .message-sender {
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .message-other .message-sender {
+        color: var(--primary-color);
+    }
+
+    .message-body {
+        font-size: var(--font-size-sm);
+        line-height: 1.5;
+        margin-bottom: var(--space-1);
+    }
+
+    .message-time {
+        font-size: var(--font-size-xs);
+        opacity: 0.7;
+        text-align: right;
+    }
+
+    /* Report Button for Messages */
+    .message-actions {
+        display: flex;
+        gap: var(--space-2);
+        margin-top: var(--space-2);
+        padding-top: var(--space-2);
+        border-top: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-report-message {
+        background: none;
+        border: none;
+        color: #ef4444;
+        font-size: var(--font-size-xs);
+        cursor: pointer;
+        padding: 0;
+        font-weight: 600;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+    }
+
+    .btn-report-message:hover {
+        color: #dc2626;
+        text-decoration: underline;
+    }
+
+    /* Empty Messages */
+    .empty-messages {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        padding: var(--space-8);
+    }
+
+    .empty-messages-icon {
+        font-size: var(--font-size-3xl);
+        margin-bottom: var(--space-3);
+        opacity: 0.5;
+    }
+
+    .empty-messages-text {
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Message Form */
+    .message-form-container {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+    }
+
+    .message-form {
+        display: flex;
+        gap: var(--space-3);
+        align-items: flex-end;
+    }
+
+    .message-input-wrapper {
+        flex: 1;
+    }
+
+    .message-input {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        resize: none;
+        min-height: 44px;
+        max-height: 120px;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .message-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-50);
+        outline: none;
+    }
+
+    .message-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .send-btn {
+        padding: var(--space-3) var(--space-5);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        white-space: nowrap;
+    }
+
+    .send-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    @media (max-width: 640px) {
+        .conversation-container {
+            padding: var(--space-4);
+        }
+
+        .conversation-header {
+            flex-direction: column;
+            gap: var(--space-3);
+        }
+
+        .message-bubble {
+            max-width: 85%;
+        }
+
+        .message-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .send-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .messages-area {
+            min-height: 300px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="conversation-page">
+    <div class="conversation-container">
+        <div class="conversation-header">
+            <div class="conversation-user-info">
+                <div class="conversation-avatar">
+                    {% for user in thread.participants.all %}
+                        {% if user != request.user %}
+                            {{ user.username|first|upper }}
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div>
+                    <div class="conversation-user-name">
+                        {% for user in thread.participants.all %}
+                            {% if user != request.user %}
+                                {{ user.username }}
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    <div class="conversation-status">HooExchange User</div>
+                </div>
+            </div>
+            <a href="{% url 'messaging:inbox' %}" class="back-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7"/>
+                </svg>
+                Back to Inbox
+            </a>
+        </div>
+
+        <div class="messages-area" id="messages-area">
+            {% if thread.messages.all %}
+                {% for message in thread.messages.all %}
+                    <div class="message-bubble {% if message.sender == request.user %}message-own{% else %}message-other{% endif %}">
+                        <div class="message-sender">{{ message.sender.username }}</div>
+                        <div class="message-body">{{ message.body }}</div>
+                        <div class="message-time">{{ message.created_at|date:"M d, g:i A" }}</div>
+                        
+                        {% if message.sender != request.user %}
+                        <div class="message-actions">
+                            <a href="{% url 'messaging:flag_message' message.id %}" class="btn-report-message">
+                                Report
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-messages">
+                    <div class="empty-messages-icon">👋</div>
+                    <p class="empty-messages-text">No messages yet. Say hello!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="message-form-container">
+            <form method="post" class="message-form">
+                {% csrf_token %}
+                <div class="message-input-wrapper">
+                    <textarea name="body" 
+                              class="message-input" 
+                              rows="1"
+                              placeholder="Type your message..."
+                              required
+                              aria-label="Message content"></textarea>
+                </div>
+                <button type="submit" class="send-btn">
+                    <span>Send</span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="22" y1="2" x2="11" y2="13"></line>
+                        <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesArea = document.getElementById('messages-area');
+    messagesArea.scrollTop = messagesArea.scrollHeight;
+    
+    // Auto-resize textarea
+    const textarea = document.querySelector('.message-input');
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+});
+</script>
+{% endblock %}

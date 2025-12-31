@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Account - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .delete-page {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-6);
+        background: var(--bg-body);
+    }
+
+    .delete-container {
+        max-width: 440px;
+        width: 100%;
+    }
+
+    .delete-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .delete-header {
+        text-align: center;
+        padding: var(--space-6);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .delete-icon {
+        width: 56px;
+        height: 56px;
+        background: #fef2f2;
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-4);
+        font-size: var(--font-size-2xl);
+    }
+
+    .delete-header h1 {
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .delete-header p {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .delete-body {
+        padding: var(--space-5);
+    }
+
+    .delete-warning {
+        background: #fef2f2;
+        padding: var(--space-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-5);
+    }
+
+    .delete-warning h3 {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: #991b1b;
+        margin-bottom: var(--space-3);
+    }
+
+    .delete-warning ul {
+        margin: 0;
+        padding-left: var(--space-4);
+        color: #7f1d1d;
+    }
+
+    .delete-warning li {
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-2);
+        line-height: 1.4;
+    }
+
+    .delete-warning li:last-child {
+        margin-bottom: 0;
+    }
+
+    .delete-confirm-text {
+        text-align: center;
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+        margin-bottom: var(--space-5);
+    }
+
+    .delete-actions {
+        display: flex;
+        gap: var(--space-3);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: var(--space-3);
+        background: var(--bg-white);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        text-decoration: none;
+        text-align: center;
+        transition: all var(--transition-fast);
+    }
+
+    .btn-cancel:hover {
+        background: var(--bg-subtle);
+    }
+
+    .btn-danger {
+        flex: 1;
+        padding: var(--space-3);
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    @media (max-width: 640px) {
+        .delete-page {
+            padding: var(--space-4);
+        }
+
+        .delete-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="delete-page">
+    <div class="delete-container">
+        <div class="delete-card">
+            <div class="delete-header">
+                <div class="delete-icon">⚠️</div>
+                <h1>Delete Account</h1>
+                <p>This action cannot be undone</p>
+            </div>
+
+            <div class="delete-body">
+                <div class="delete-warning">
+                    <h3>This will permanently delete:</h3>
+                    <ul>
+                        <li>Your profile and account settings</li>
+                        <li>All your listings</li>
+                        <li>Your message history</li>
+                        <li>All associated data</li>
+                    </ul>
+                </div>
+
+                <p class="delete-confirm-text">
+                    Are you sure you want to proceed? This cannot be reversed.
+                </p>
+
+                <form method="POST" class="delete-actions">
+                    {% csrf_token %}
+                    <a href="{% url 'profile' %}" class="btn-cancel">Keep Account</a>
+                    <button type="submit" class="btn-danger">Delete Account</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

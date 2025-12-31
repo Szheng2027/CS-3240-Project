@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}Messages - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .messages-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+    }
+
+    .messages-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    /* Breadcrumb */
+    .breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-4);
+    }
+
+    .breadcrumb a {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary-color);
+    }
+
+    .breadcrumb-separator {
+        color: var(--text-muted);
+    }
+
+    /* Page Header */
+    .messages-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .messages-header h1 {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-1);
+    }
+
+    .messages-header p {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Messages Card */
+    .messages-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .explore-card {
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        padding: 2rem;
+        border-radius: var(--radius-lg);
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+    }
+
+    .explore-card h3 {
+        font-size: 1.3rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .explore-card p {
+        opacity: 0.95;
+        margin-bottom: 1.5rem;
+    }
+
+    .explore-btn {
+        background: white;
+        color: var(--primary-color);
+        padding: 0.875rem 2rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s;
+    }
+
+    .explore-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
+    }
+
+    .threads-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .thread-item {
+        display: flex;
+        align-items: center;
+        padding: var(--space-4);
+        text-decoration: none;
+        color: var(--text-dark);
+        transition: all var(--transition-fast);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .thread-item:last-child {
+        border-bottom: none;
+    }
+
+    .thread-item:hover {
+        background: var(--bg-subtle);
+    }
+
+    .thread-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+        color: white;
+        font-weight: 600;
+        flex-shrink: 0;
+        margin-right: var(--space-4);
+    }
+
+    .thread-content {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .thread-users {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .thread-preview {
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+    }
+
+    .thread-arrow {
+        color: var(--text-muted);
+        margin-left: var(--space-4);
+        transition: transform var(--transition-fast), color var(--transition-fast);
+    }
+
+    .thread-item:hover .thread-arrow {
+        color: var(--primary-color);
+        transform: translateX(4px);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-12) var(--space-6);
+    }
+
+    .empty-state-icon {
+        width: 64px;
+        height: 64px;
+        background: var(--bg-subtle);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-4);
+        font-size: var(--font-size-2xl);
+    }
+
+    .empty-state-title {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-2);
+    }
+
+    .empty-state-text {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-5);
+        max-width: 300px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    @media (max-width: 640px) {
+        .messages-container {
+            padding: var(--space-4);
+        }
+
+        .thread-avatar {
+            width: 44px;
+            height: 44px;
+            margin-right: var(--space-3);
+        }
+
+        .thread-item {
+            padding: var(--space-3);
+        }
+    }
+
+    .unread-badge {
+        background: var(--primary-color);
+        color: white;
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 12px;
+        margin-left: 8px;
+        font-weight: 600;
+    }
+
+    /* Button Styles */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        padding: var(--space-3) var(--space-4);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        border: none;
+        text-decoration: none;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn svg {
+        display: inline-block;
+        vertical-align: middle;
+    }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="messages-page">
+    <div class="messages-container">
+        <nav class="breadcrumb">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Messages</span>
+        </nav>
+
+        <div class="messages-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h1>Messages</h1>
+                    <p>Your conversations with other students</p>
+                </div>
+                <a href="{% url 'messaging:group_conversation' %}" class="btn btn-primary">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    Create Group
+                </a>
+            </div>
+        </div>
+
+        <div class="messages-card">
+            {% if threads %}
+                <div class="threads-list">
+                    {% for thread in threads %}
+                        <a href="{% url 'messaging:thread_detail' thread.id %}" class="thread-item">
+                            <div class="thread-avatar">
+                                {% if thread.name %}
+                                    {{ thread.name|first|upper }}
+                                {% elif thread.other_participant %}
+                                    {{ thread.other_participant.profile.get_display_name|first|upper }}
+                                {% else %}
+                                    ?
+                                {% endif %}
+                            </div>
+
+                            <div class="thread-content">
+                                <div class="thread-users">
+                                    {% if thread.name %}
+                                        {{ thread.name }}
+                                    {% elif thread.other_participant %}
+                                        {{ thread.other_participant.profile.get_display_name }}
+                                    {% else %}
+                                        (No participants)
+                                    {% endif %}
+                                    {% if thread.unread_count > 0 %}
+                                        <span class="unread-badge">{{ thread.unread_count }}</span>
+                                    {% endif %}
+                                </div>
+
+                                <div class="thread-preview">
+                                    {% if thread.is_group %}
+                                        Group chat • {{ thread.participants.count }} participants
+                                    {% else %}
+                                        Click to view conversation
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <svg class="thread-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 18l6-6-6-6"/>
+                            </svg>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-state-icon">💬</div>
+                    <div class="empty-state-title">No messages yet</div>
+                    <p class="empty-state-text">
+                        Start a conversation by messaging a seller from their listing.
+                    </p>
+                    <a href="{% url 'public_listings' %}" class="btn btn-primary">
+                        Browse Listings
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

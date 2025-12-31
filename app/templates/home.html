@@ -1,0 +1,498 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+
+{% block title %}HooExchange - Student Marketplace{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Hero Section */
+    .hero {
+        background: linear-gradient(135deg, #111827 0%, #1f2937 100%);
+        color: white;
+        padding: var(--space-16) var(--space-6);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(ellipse 80% 50% at 50% -20%, rgba(22, 163, 74, 0.15), transparent),
+            radial-gradient(ellipse 60% 40% at 100% 100%, rgba(13, 148, 136, 0.1), transparent);
+        pointer-events: none;
+    }
+
+    .hero-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-12);
+        align-items: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .hero-content {
+        max-width: 560px;
+    }
+
+    .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        background: rgba(22, 163, 74, 0.15);
+        border: 1px solid rgba(22, 163, 74, 0.3);
+        color: var(--primary-light);
+        padding: var(--space-1) var(--space-3);
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: var(--space-4);
+    }
+
+    .hero-badge-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--primary-light);
+        border-radius: 50%;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.5; }
+    }
+
+    .hero h1 {
+        font-size: var(--font-size-4xl);
+        font-weight: 700;
+        line-height: 1.1;
+        letter-spacing: -0.03em;
+        margin-bottom: var(--space-4);
+    }
+
+    .hero h1 span {
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .hero-tagline {
+        font-size: var(--font-size-lg);
+        color: #9ca3af;
+        line-height: 1.6;
+        margin-bottom: var(--space-8);
+    }
+
+    .hero-cta {
+        display: flex;
+        gap: var(--space-3);
+        flex-wrap: wrap;
+    }
+
+    .hero-btn {
+        padding: var(--space-3) var(--space-6);
+        font-size: var(--font-size-base);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        text-decoration: none;
+        transition: all var(--transition-base);
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .hero-btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3);
+    }
+
+    .hero-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4);
+    }
+
+    .hero-btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15);
+        border-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Hero Visual */
+    .hero-visual {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hero-cards {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-3);
+        transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+    }
+
+    .hero-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        backdrop-filter: blur(10px);
+    }
+
+    .hero-card:nth-child(2) { transform: translateY(20px); }
+    .hero-card:nth-child(3) { transform: translateY(-10px); }
+
+    .hero-card-icon {
+        width: 40px;
+        height: 40px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--space-3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+    }
+
+    .hero-card-title {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: white;
+        margin-bottom: var(--space-1);
+    }
+
+    .hero-card-text {
+        font-size: var(--font-size-xs);
+        color: #9ca3af;
+    }
+
+    /* Features Section */
+    .features {
+        padding: var(--space-16) var(--space-6);
+        background-color: var(--bg-white);
+    }
+
+    .features-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .features-header {
+        text-align: center;
+        margin-bottom: var(--space-12);
+    }
+
+    .section-label {
+        display: inline-block;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--primary-color);
+        margin-bottom: var(--space-3);
+    }
+
+    .features-header h2 {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-3);
+    }
+
+    .features-header p {
+        font-size: var(--font-size-lg);
+        color: var(--text-light);
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    .features-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-6);
+    }
+
+    .feature-card {
+        background: var(--bg-white);
+        padding: var(--space-6);
+        border-radius: var(--radius-lg);
+        transition: all var(--transition-base);
+        border: 1px solid var(--border-light);
+        position: relative;
+    }
+
+    .feature-card:hover {
+        border-color: var(--primary-100);
+        box-shadow: var(--shadow-lg);
+        transform: translateY(-4px);
+    }
+
+    .feature-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--primary-50);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--space-4);
+        color: var(--primary-color);
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+    }
+
+    .feature-card h3 {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-2);
+    }
+
+    .feature-card p {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+        line-height: 1.6;
+    }
+
+    /* About Section */
+    .about {
+        padding: var(--space-16) var(--space-6);
+        background: var(--bg-subtle);
+    }
+
+    .about-container {
+        max-width: 800px;
+        margin: 0 auto;
+        text-align: center;
+    }
+
+    .about h2 {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-4);
+    }
+
+    .about p {
+        font-size: var(--font-size-lg);
+        color: var(--text-light);
+        line-height: 1.7;
+    }
+
+    /* CTA Section */
+    .cta-section {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+        color: white;
+        padding: var(--space-12) var(--space-6);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .cta-section::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.828-1.415 1.415L51.8 0h2.827zM5.373 0l-.83.828L5.96 2.243 8.2 0H5.374zM48.97 0l3.657 3.657-1.414 1.414L46.143 0h2.828zM11.03 0L7.372 3.657 8.787 5.07 13.857 0H11.03zm32.284 0L49.8 6.485 48.384 7.9l-7.9-7.9h2.83zM16.686 0L10.2 6.485 11.616 7.9l7.9-7.9h-2.83zM22.344 0L13.858 8.485 15.272 9.9l7.9-7.9h-.828zm5.656 0L19.515 8.485 17.343 10.657 28 0h.0zM32 0l-8.485 8.485L28 13.97 40.97 1 32 0zm5.657 0l2.828 2.828-1.414 1.415L37.657 2.828V0h.001zm5.656 0l5.657 5.657-1.414 1.415-4.243-4.243V0h0zM49.97 0l9.9 9.9-1.415 1.414L49.97 2.828V0zm-9.9 0l9.9 9.9-1.414 1.414-8.486-8.485V0h0zM0 5.373l.828-.83L2.243 5.96 0 8.2V5.373zm0 5.656l3.657-3.657 1.414 1.414L0 13.857V11.03zm0 5.657l6.485-6.485 1.414 1.415-7.9 7.9v-2.83zm0 5.657l8.485-8.485L9.9 15.272l-7.9 7.9v-.827h-.001zm0 5.656L13.971 19.515l1.414 1.414L0 36.343v-2.83zm0 5.657L19.515 23.97l1.414 1.414L0 46.344v-2.83h.001zm0 5.656l25.97-25.97 1.415 1.415L0 51.374v-2.828h0zm0 5.657l31.627-31.627 1.415 1.414L0 56.374v-2.828h0z' fill='%23ffffff' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E");
+        opacity: 0.5;
+    }
+
+    .cta-content {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: center;
+        position: relative;
+        z-index: 1;
+    }
+
+    .cta-section h2 {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        margin-bottom: var(--space-3);
+        letter-spacing: -0.02em;
+    }
+
+    .cta-section p {
+        font-size: var(--font-size-lg);
+        margin-bottom: var(--space-6);
+        opacity: 0.95;
+    }
+
+    .cta-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-3) var(--space-6);
+        background: white;
+        color: var(--primary-color);
+        font-weight: 600;
+        font-size: var(--font-size-base);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        transition: all var(--transition-base);
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .cta-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 968px) {
+        .hero-container {
+            grid-template-columns: 1fr;
+            text-align: center;
+        }
+
+        .hero-content {
+            max-width: 100%;
+        }
+
+        .hero-cta {
+            justify-content: center;
+        }
+
+        .hero-visual {
+            display: none;
+        }
+
+        .features-grid {
+            grid-template-columns: 1fr;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .hero {
+            padding: var(--space-10) var(--space-4);
+        }
+
+        .hero h1 {
+            font-size: var(--font-size-3xl);
+        }
+
+        .hero-tagline {
+            font-size: var(--font-size-base);
+        }
+
+        .features {
+            padding: var(--space-10) var(--space-4);
+        }
+
+        .features-header h2,
+        .about h2,
+        .cta-section h2 {
+            font-size: var(--font-size-2xl);
+        }
+
+        .about {
+            padding: var(--space-10) var(--space-4);
+        }
+
+        .cta-section {
+            padding: var(--space-10) var(--space-4);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero" role="banner">
+    <div class="hero-container">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <span class="hero-badge-dot"></span>
+                UVA Student Exchange 
+            </div>
+            <h1>Buy, sell & trade <span>with fellow Hoos</span></h1>
+            <p class="hero-tagline">
+                The easiest way for UVA students to exchange textbooks, clothes, and more. Join your peers today.
+            </p>
+            <div class="hero-cta">
+                <a href="{% provider_login_url 'google' %}" class="hero-btn hero-btn-primary" aria-label="Get started with Google login">
+                    Get Started Free
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                </a>
+                <a href="{% url 'public_listings' %}" class="hero-btn hero-btn-secondary">
+                    Browse Listings
+                </a>
+            </div>
+        </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="features">
+    <div class="features-container">
+        <div class="features-header">
+            <span class="section-label">How It Works</span>
+            <h2>Simple & Student-Friendly</h2>
+            <p>Get started in minutes with your email</p>
+        </div>
+        <div class="features-grid">
+            <article class="feature-card">
+                <div class="feature-icon">1</div>
+                <h3>List Your Items</h3>
+                <p>Snap a photo, add a description, and your listing is live. Reach your fellow students instantly.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon">2</div>
+                <h3>Connect & Chat</h3>
+                <p>Message directly through our platform. Coordinate meetups on grounds.</p>
+            </article>
+            <article class="feature-card">
+                <div class="feature-icon">3</div>
+                <h3>Make the Exchange</h3>
+                <p>Meet up safely on campus, complete your trade, and both parties walk away happy.</p>
+            </article>
+        </div>
+    </div>
+</section>
+
+<!-- About Section -->
+<section id="about" class="about">
+    <div class="about-container">
+        <span class="section-label">Our Mission</span>
+        <h2>Built for Hoos, by Hoos</h2>
+        <p>
+            HooExchange makes it easy for  UVA the ability to exchange and trade items as they see fit 
+            within our trusted campus community. We believe this is a great way to promote sustainability and reduce waste. 
+            Whether you're looking for textbooks, clothes, or just trying to declutter before move-out, 
+            we've got you covered.
+        </p>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="cta-content">
+        <h2>Ready to start trading?</h2>
+        <p>Join hundreds of UVA students already using HooExchange</p>
+        <a href="{% provider_login_url 'google' %}" class="cta-btn">
+            Sign in with Google
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+    </div>
+</section>
+{% endblock %}

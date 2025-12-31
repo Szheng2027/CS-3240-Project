@@ -1,0 +1,829 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+    }
+
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    /* Welcome Section */
+    .welcome-section {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-6);
+    }
+
+    .welcome-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    .welcome-avatar {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: var(--font-size-xl);
+        font-weight: 700;
+    }
+
+    .welcome-text h1 {
+        font-size: var(--font-size-xl);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .welcome-text p {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .welcome-actions {
+        display: flex;
+        gap: var(--space-2);
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+    }
+
+    .quick-action-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+        text-decoration: none;
+        transition: all var(--transition-fast);
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+    }
+
+    .quick-action-card:hover {
+        border-color: var(--primary-100);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .quick-action-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--primary-50);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+        font-size: var(--font-size-lg);
+    }
+
+    .quick-action-text {
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        color: var(--text-dark);
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: var(--space-6);
+    }
+
+    /* Cards */
+    .dashboard-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--space-4) var(--space-5);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .card-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .card-body {
+        padding: var(--space-5);
+    }
+
+    /* Post Listing Form */
+    .listing-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .form-label {
+        font-weight: 500;
+        color: var(--text-dark);
+        font-size: var(--font-size-sm);
+    }
+
+    .form-label .required {
+        color: var(--error-color);
+    }
+
+    .form-input {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .form-input:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-50);
+        outline: none;
+    }
+
+    .form-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-50);
+        outline: none;
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: var(--space-4);
+        background: var(--bg-subtle);
+        border: 2px dashed var(--border-color);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+    }
+
+    .file-input-label:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-50);
+        color: var(--primary-color);
+    }
+
+    .file-input {
+        position: absolute;
+        left: -9999px;
+    }
+
+    .image-preview-container {
+        margin-top: var(--space-4);
+        padding: var(--space-4);
+        background: var(--bg-subtle);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--border-light);
+    }
+
+    .image-preview {
+        max-width: 300px;
+        max-height: 300px;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+        display: block;
+    }
+    /* Tag Checkboxes */
+    .tag-checkboxes {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .tag-checkboxes ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+    }
+
+    .tag-checkboxes li {
+        margin: 0;
+    }
+
+    .tag-checkboxes label {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        padding: var(--space-2) var(--space-3);
+        background: var(--bg-subtle);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: var(--font-size-sm);
+        transition: all var(--transition-fast);
+    }
+
+    .tag-checkboxes label:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-50);
+    }
+
+    .tag-checkboxes input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary-color);
+    }
+
+    .tag-checkboxes input[type="checkbox"]:checked + label,
+    .tag-checkboxes label:has(input[type="checkbox"]:checked) {
+        background: var(--primary-50);
+        border-color: var(--primary-color);
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: var(--space-3);
+        background: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+    }
+
+    .submit-btn:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Stats Section */
+    .stats-grid {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+
+    .stat-card {
+        background: var(--bg-subtle);
+        border-radius: var(--radius-md);
+        padding: var(--space-4);
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--primary-color);
+        line-height: 1;
+        margin-bottom: var(--space-1);
+    }
+
+    .stat-value.secondary {
+        color: var(--secondary-color);
+    }
+
+    .stat-label {
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* Listings Section */
+    .listings-section {
+        grid-column: 1 / -1;
+    }
+
+    .listings-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        gap: var(--space-4);
+    }
+
+    .listing-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: all var(--transition-base);
+    }
+
+    .listing-card:hover {
+        border-color: var(--primary-100);
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+
+    .listing-card-sold {
+        opacity: 0.8;
+        cursor: default;
+    }
+
+    .listing-card-sold:hover {
+        border-color: var(--border-color);
+        box-shadow: none;
+        transform: translateY(0);
+    }
+
+    .listing-image-container {
+        width: 100%;
+        aspect-ratio: 4/3;
+        background: linear-gradient(135deg, var(--primary-50), #e0f2fe);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .sold-badge {
+        position: absolute;
+        top: 1rem;
+        left: 1rem;
+        background: rgba(220, 38, 38, 0.95);
+        color: white;
+        padding: 0.5rem 1.5rem;
+        font-weight: 800;
+        font-size: 1.5rem;
+        letter-spacing: 0.1em;
+        border-radius: var(--radius-md);
+        z-index: 10;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        transform: rotate(-5deg);
+    }
+
+    .sold-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.3);
+        z-index: 5;
+    }
+
+    .listing-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .listing-placeholder {
+        color: var(--text-muted);
+        font-size: var(--font-size-2xl);
+    }
+
+    .listing-content {
+        padding: var(--space-3);
+    }
+
+    .listing-title {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-2);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .listing-meta {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-8) var(--space-4);
+    }
+
+    .empty-state-icon {
+        width: 48px;
+        height: 48px;
+        background: var(--bg-subtle);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--space-3);
+        font-size: var(--font-size-xl);
+    }
+
+    .empty-state-text {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+        line-height: 1.5;
+    }
+
+    /* Sidebar */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 968px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar {
+            order: -1;
+        }
+
+        .quick-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .dashboard-container {
+            padding: var(--space-4);
+        }
+
+        .welcome-section {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .welcome-info {
+            flex-direction: column;
+        }
+
+        .welcome-actions {
+            width: 100%;
+            flex-direction: column;
+        }
+
+        .welcome-actions .btn {
+            width: 100%;
+        }
+
+        .listings-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-page">
+    <div class="dashboard-container">
+        <!-- Welcome Section -->
+        <div class="welcome-section">
+            <div class="welcome-info">
+                <div class="welcome-avatar">{{ display_name|slice:":1"|upper }}</div>
+                <div class="welcome-text">
+                    <h1>Welcome back, {{ display_name }}</h1>
+                    <p>{{ email }}</p>
+                </div>
+            </div>
+            <div class="welcome-actions">
+                <a href="{% url 'profile' %}" class="btn btn-secondary">Edit Profile</a>
+                <a href="{% url 'public_listings' %}" class="btn btn-primary">Browse Listings</a>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <a href="#post-listing" class="quick-action-card">
+                <div class="quick-action-icon">📝</div>
+                <span class="quick-action-text">Post New Listing</span>
+            </a>
+            <a href="{% url 'messaging:inbox' %}" class="quick-action-card">
+                <div class="quick-action-icon">💬</div>
+                <span class="quick-action-text">View Messages</span>
+            </a>
+            <a href="{% url 'public_listings' %}" class="quick-action-card">
+                <div class="quick-action-icon">🔍</div>
+                <span class="quick-action-text">Browse Listings</span>
+            </a>
+        </div>
+
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Main Content -->
+            <div class="main-content">
+                <!-- Post Listing Card -->
+                <div class="dashboard-card" id="post-listing">
+                    <div class="card-header">
+                        <h2 class="card-title">Post a New Listing</h2>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" enctype="multipart/form-data" class="listing-form">
+                            {% csrf_token %}
+                            
+                            <div class="form-group">
+                                <label for="{{ form.title.id_for_label }}" class="form-label">
+                                    Title <span class="required">*</span>
+                                </label>
+                                <input type="text" 
+                                       name="{{ form.title.name }}" 
+                                       id="{{ form.title.id_for_label }}"
+                                       class="form-input"
+                                       placeholder="e.g., Calculus Textbook, Desk Lamp, Winter Jacket"
+                                       required
+                                       maxlength="80">
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.description.id_for_label }}" class="form-label">
+                                    Description
+                                </label>
+                                <textarea name="{{ form.description.name }}" 
+                                          id="{{ form.description.id_for_label }}"
+                                          class="form-textarea"
+                                          placeholder="Describe your item - condition, features, why you're selling..."
+                                          maxlength="500" style="min-height: 100px;"></textarea>
+                            </div>
+
+                            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                <div class="form-group">
+                                    <label for="{{ form.category.id_for_label }}" class="form-label">
+                                        Category <span class="required">*</span>
+                                    </label>
+                                    <select name="{{ form.category.name }}" 
+                                            id="{{ form.category.id_for_label }}"
+                                            class="form-select"
+                                            required>
+                                        <option value="">Select category</option>
+                                        <option value="textbooks">Textbooks</option>
+                                        <option value="furniture">Furniture</option>
+                                        <option value="electronics">Electronics</option>
+                                        <option value="clothing">Clothing</option>
+                                        <option value="supplies">School Supplies</option>
+                                        <option value="other" selected>Other</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="{{ form.condition.id_for_label }}" class="form-label">
+                                        Condition <span class="required">*</span>
+                                    </label>
+                                    <select name="{{ form.condition.name }}" 
+                                            id="{{ form.condition.id_for_label }}"
+                                            class="form-select"
+                                            required>
+                                        <option value="">Select condition</option>
+                                        <option value="new">New</option>
+                                        <option value="like_new">Like New</option>
+                                        <option value="good" selected>Good</option>
+                                        <option value="fair">Fair</option>
+                                        <option value="poor">Poor</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="{{ form.image.id_for_label }}" class="form-label">
+                                    Photo (Optional)
+                                </label>
+                                <div class="file-input-wrapper">
+                                    <label for="{{ form.image.id_for_label }}" class="file-input-label">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                            <polyline points="21 15 16 10 5 21"></polyline>
+                                        </svg>
+                                        <span>Click to upload image</span>
+                                    </label>
+                                    {{ form.image }}
+                                </div>
+                                <div class="image-preview-container" style="display: none;">
+                                    <img class="image-preview" alt="Preview">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">
+                                    Tags (Optional - select up to 2)
+                                </label>
+                                <div class="tag-checkboxes">
+                                    {{ form.tags }}
+                                </div>
+                            </div>
+
+                            {% if form.errors %}
+                                <div class="alert alert-error" role="alert">
+                                    {% for field in form %}
+                                        {% for error in field.errors %}
+                                            <p>{{ error }}</p>
+                                        {% endfor %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+
+                            <button type="submit" class="submit-btn">
+                                Post Listing
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Stats Card -->
+                <div class="dashboard-card">
+                    <div class="card-header">
+                        <h2 class="card-title">Your Stats</h2>
+                    </div>
+                    <div class="card-body">
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-value">{{ my_listings|length }}</div>
+                                <div class="stat-label">Active Listings</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-value secondary">{{ profile.bags_picked }}</div>
+                                <div class="stat-label">Bags Picked Up</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Listings Section -->
+            <div class="dashboard-card listings-section">
+                <div class="card-header">
+                    <h2 class="card-title">Your Listings</h2>
+                </div>
+                <div class="card-body">
+                    {% if my_listings %}
+                        <div class="listings-grid">
+                            {% for listing in my_listings %}
+                                {% if listing.is_active %}
+                                    <a href="{% url 'listing_detail' listing.id %}" class="listing-card" style="text-decoration: none; color: inherit;">
+                                        <div class="listing-image-container">
+                                            {% if listing.image %}
+                                                <img src="{{ listing.image.url }}" 
+                                                     alt="{{ listing.title }}" 
+                                                     class="listing-image"
+                                                     loading="lazy">
+                                            {% else %}
+                                                <div class="listing-placeholder">📦</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="listing-content">
+                                            <h3 class="listing-title">{{ listing.title }}</h3>
+                                            <div class="listing-meta">
+                                                {{ listing.created_at|date:"M d, Y" }}
+                                            </div>
+                                        </div>
+                                    </a>
+                                {% else %}
+                                    <article class="listing-card listing-card-sold">
+                                        <div class="listing-image-container">
+                                            <div class="sold-overlay"></div>
+                                            <div class="sold-badge">SOLD</div>
+                                            {% if listing.image %}
+                                                <img src="{{ listing.image.url }}" 
+                                                     alt="{{ listing.title }}" 
+                                                     class="listing-image"
+                                                     loading="lazy">
+                                            {% else %}
+                                                <div class="listing-placeholder">📦</div>
+                                            {% endif %}
+                                        </div>
+                                        <div class="listing-content">
+                                            <h3 class="listing-title">{{ listing.title }}</h3>
+                                            <div class="listing-meta">
+                                                {{ listing.created_at|date:"M d, Y" }}
+                                            </div>
+                                        </div>
+                                    </article>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <div class="empty-state-icon">📦</div>
+                            <p class="empty-state-text">
+                                You haven't posted any listings yet.<br>
+                                Create your first listing above!
+                            </p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+<script>
+// Image preview function
+function previewImage(input) {
+    const file = input.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const container = input.closest('.form-group').querySelector('.image-preview-container');
+            const img = container.querySelector('.image-preview');
+            if (container && img) {
+                img.src = e.target.result;
+                container.style.display = 'block';
+            }
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+// Attach to file input
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.querySelector('input[type="file"]');
+    if (fileInput) {
+        fileInput.addEventListener('change', function() {
+            previewImage(this);
+        });
+    }
+});
+</script>
+<script>
+// Limit tag selection to 2
+document.addEventListener('DOMContentLoaded', function() {
+    const tagCheckboxes = document.querySelectorAll('.tag-checkboxes input[type="checkbox"]');
+    
+    tagCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const checked = document.querySelectorAll('.tag-checkboxes input[type="checkbox"]:checked');
+            if (checked.length > 2) {
+                this.checked = false;
+                alert('You can select up to 2 tags only.');
+            }
+        });
+    });
+});
+</script>
+

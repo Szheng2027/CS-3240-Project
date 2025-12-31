@@ -1,0 +1,296 @@
+{% extends 'base.html' %}
+{% block title %}Ban User - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+  .ban-container { max-width:880px; margin:2.5rem auto; padding:1rem; }
+  .ban-card {
+    display:flex;
+    gap:24px;
+    background:var(--bg-white, #fff);
+    border:1px solid var(--border-light, #e6e6e6);
+    border-radius:12px;
+    padding:20px;
+    box-shadow:0 6px 18px rgba(15,23,42,0.04);
+    align-items:flex-start;
+  }
+
+  .ban-user {
+    width:240px;
+    text-align:center;
+  }
+  .ban-avatar {
+    width:112px;
+    height:112px;
+    border-radius:9999px;
+    object-fit:cover;
+    display:inline-block;
+    background:var(--bg-subtle,#f3f4f6);
+    font-size:36px;
+    color:var(--text-muted,#6b7280);
+    line-height:112px;
+  }
+  .ban-username { margin-top:12px; font-weight:700; font-size:1.05rem; }
+  .ban-email { font-size:0.9rem; color:var(--text-light,#6b7280); margin-top:4px; }
+
+  .ban-main { flex:1; min-width:0; }
+  .ban-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .ban-title { font-size:1.15rem; font-weight:700; }
+  .ban-note { color:var(--text-light,#6b7280); }
+
+  .ban-warning {
+    background:#fff3f2;
+    border:1px solid #ffd6d6;
+    color:#7f1d1d;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:14px;
+  }
+
+  .ban-form .form-row { margin-bottom:12px; display:flex; flex-direction:column; gap:6px; }
+  .ban-form label { font-weight:600; font-size:0.95rem; }
+  .ban-form input[type="checkbox"] { width:18px; height:18px; }
+  .ban-form textarea, .ban-form .form-input {
+    width:100%;
+    padding:10px 12px;
+    border:1px solid var(--border-light,#e6e6e6);
+    border-radius:8px;
+    background:var(--bg-white,#fff);
+    font-size:0.95rem;
+  }
+
+  .ban-actions { display:flex; gap:12px; margin-top:10px; justify-content:flex-end; }
+  .btn { padding:.5rem .9rem; border-radius:8px; font-weight:600; cursor:pointer; border:1px solid transparent; }
+  .btn-primary { background:#dc2626; color:#fff; border-color:#b91c1c; }
+  .btn-primary:hover { filter:brightness(.95); }
+  .btn-secondary { background:#fff; color:#111827; border-color:#e6e6e6; }
+  .btn-ban {
+   background: #dc2626;
+   color: #fff;
+   border-color: #b91c1c;
+   }
+  .btn-ban:hover { filter:brightness(.85); }
+  .btn-unban { background:#10b981; color:#fff; border-color:#059669; }
+  .btn-unban:hover { filter:brightness(.95); }
+  @media (max-width:720px){
+    .ban-card { flex-direction:column; }
+    .ban-user { width:100%; display:flex; gap:12px; align-items:center; text-align:left; }
+    .ban-avatar { width:72px; height:72px; line-height:72px; font-size:22px; }
+  }
+
+  .appeals-section { margin: 18px 0; }
+  .appeals-section h3 { margin:0 0 12px 0; font-size:1.05rem; }
+
+  .appeals-grid { display:flex; flex-direction:column; gap:12px; }
+
+  .appeal-card {
+    display:block;
+    background: #fff;
+    border: 1px solid #eef2f7;
+    border-radius: 10px;
+    padding: 12px;
+    box-shadow: 0 6px 18px rgba(15,23,42,0.03);
+  }
+
+  .appeal-header {
+    display:flex;
+    gap:12px;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:8px;
+  }
+
+  .appeal-user {
+    display:flex;
+    gap:12px;
+    align-items:center;
+  }
+
+  .appeal-avatar {
+    width:40px;
+    height:40px;
+    border-radius:9999px;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color:#374151;
+  }
+
+  .appeal-meta {
+    font-size:0.9rem;
+    color:#374151;
+  }
+  .appeal-meta .time { color:#6b7280; font-size:0.85rem; margin-left:8px; }
+
+  .appeal-status {
+    padding:4px 8px;
+    border-radius:999px;
+    font-weight:600;
+    font-size:0.8rem;
+  }
+  .appeal-status.pending { background:#fef3c7; color:#92400e; border:1px solid #fde68a; }
+  .appeal-status.accepted { background:#ecfdf5; color:#065f46; border:1px solid #bbf7d0; }
+  .appeal-status.rejected { background:#fff1f2; color:#9f1239; border:1px solid #fecaca; }
+
+  .appeal-message { color:#111827; line-height:1.45; margin-bottom:8px; white-space:pre-wrap; }
+  .appeal-evidence a { color:#2563eb; text-decoration:underline; }
+
+  .appeal-admin-response {
+    margin-top:8px;
+    padding:10px;
+    background:#f8fafc;
+    border-radius:8px;
+    border:1px solid #e6eef7;
+    color:#0f172a;
+    font-size:0.95rem;
+  }
+
+  .appeal-actions {
+    display:flex;
+    gap:8px;
+    justify-content:flex-end;
+    margin-top:8px;
+  }
+  .appeal-btn {
+    padding:6px 10px;
+    border-radius:8px;
+    border:1px solid transparent;
+    font-weight:600;
+    cursor:pointer;
+    font-size:0.9rem;
+  }
+  .appeal-btn.accept { background:#10b981; color:#fff; border-color:#059669; }
+  .appeal-btn.reject { background:#ef4444; color:#fff; border-color:#dc2626; }
+  .appeal-btn.respond { background:#fff; color:#111827; border:1px solid #e6e6e6; }
+  @media (max-width:720px){
+    .appeal-header { flex-direction:column; align-items:flex-start; gap:8px; }
+    .appeal-actions { width:100%; justify-content:flex-start; flex-wrap:wrap; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ban-container">
+  <div class="ban-card">
+    <div class="ban-user">
+      {% if target.profile.image %}
+        <img src="{{ target.profile.image.url }}" alt="avatar" class="ban-avatar">
+      {% else %}
+        <div class="ban-avatar">{{ target.username|slice:":1"|upper }}</div>
+      {% endif %}
+      <div class="ban-username">{{ target.profile.get_display_name }}</div>
+      <div class="ban-email">{{ target.email }}</div>
+    </div>
+
+    <div class="ban-main">
+      <div class="ban-header">
+        <div>
+          <div class="ban-title">Manage Account: {{ target.profile.get_display_name }}</div>
+        </div>
+      </div>
+
+      {% if profile.banned %}
+        <div class="ban-warning">
+          This user is currently banned.
+          {% if profile.ban_reason %}<div style="margin-top:8px;"><strong>Reason:</strong> {{ profile.ban_reason }}</div>{% endif %}
+        </div>
+      {% endif %}
+    
+        {% if appeals %}
+                <div class="appeals-section">
+          <h3>Unban Requests</h3>
+          <div class="appeals-grid">
+            {% for a in appeals %}
+              <article class="appeal-card">
+                <div class="appeal-header">
+                  <div class="appeal-user">
+                    <div class="appeal-avatar">
+                      {% if a.user.profile.image %}
+                        <img src="{{ a.user.profile.image.url }}" alt="" style="width:40px;height:40px;border-radius:9999px;object-fit:cover;">
+                      {% else %}
+                        {{ a.user.username|slice:":1"|upper }}
+                      {% endif %}
+                    </div>
+                    <div class="appeal-meta">
+                      <div><strong>{{ a.subject }}</strong></div>
+                      <div class="time">{{ a.created_at|date:"Y-m-d H:i" }} · {{ a.user.email }}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <span class="appeal-status {{ a.status }}">{{ a.get_status_display }}</span>
+                  </div>
+                </div>
+
+                <div class="appeal-message">{{ a.message|linebreaksbr }}</div>
+                {% if a.evidence %}
+                  <div class="appeal-evidence"><a href="{{ a.evidence.url }}" target="_blank">View evidence</a></div>
+                {% endif %}
+
+                {% if a.admin_response %}
+                  <div class="appeal-admin-response">
+                    <strong>Admin response</strong>
+                    <div>{{ a.admin_response|linebreaksbr }}</div>
+                  </div>
+                {% endif %}
+
+                <div class="appeal-actions">
+                  {% if a.status == "pending" %}
+                    <form method="post" action="" style="display:flex;gap:8px;align-items:center;">
+                      {% csrf_token %}
+                      <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                      <input type="hidden" name="appeal_id" value="{{ a.id }}">
+                      <label for="action-{{ a.id }}" style="margin:0;">
+                        <select name="action" id="action-{{ a.id }}" style="padding:8px;border-radius:8px;border:1px solid #e6e6e6;">
+                          <option value="accept">Unban user</option>
+                          <option value="reject" selected>Keep banned</option>
+                        </select>
+                      </label>
+
+                      <input name="admin_note" placeholder="Optional admin note" style="padding:8px;border-radius:8px;border:1px solid #e6e6e6;width:260px;" />
+
+                      <button type="submit" class="appeal-btn respond" style="padding:8px 12px;border-radius:8px;">Submit</button>
+                    </form>
+                  {% endif %}
+                </div>
+              </article>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if profile.banned %}
+        <form method="post" action="" style="margin-top:12px;display:flex;gap:8px;justify-content:flex-end;">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next }}">
+          <input type="hidden" name="unban" value="1">
+          <a href="{{ next }}" class="btn btn-secondary">Cancel</a>
+          <button type="submit" class="btn btn-unban">Unban</button>
+      {% else %}
+        <form method="post" class="ban-form" action="">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <div class="form-row">
+            {{ form.ban.label_tag }}
+            {{ form.ban }}
+            </div>
+
+            <div class="form-row">
+            {{ form.ban_reason.label_tag }}
+            {{ form.ban_reason }}
+            </div>
+
+            <div class="ban-actions">
+            <a href="{{ next }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-ban">
+                Ban user
+            </button>
+            </div>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,701 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ listing.title }} - Listing Details{% endblock %}
+
+{% block extra_css %}
+<style>
+    .listing-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+
+    .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--primary-color);
+        text-decoration: none;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        transition: all 0.2s;
+    }
+
+    .back-link:hover {
+        gap: 0.75rem;
+        color: var(--primary-dark);
+    }
+
+    .listing-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+    }
+
+    /* Image Section */
+    .listing-image-section {
+        background: white;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+    }
+
+    .listing-main-image {
+        width: 100%;
+        height: 500px;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .listing-main-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-image-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-light), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        color: white;
+        font-size: 4rem;
+        opacity: 0.5;
+    }
+
+    /* Details Section */
+    .listing-details-section {
+        background: white;
+        padding: 2rem;
+        border: 1px solid var(--border-color);
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .listing-header {
+        padding-bottom: 1.5rem;
+        border-bottom: 2px solid var(--bg-light);
+    }
+
+    .listing-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+    }
+
+    .listing-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+    }
+
+    .meta-icon {
+        width: 20px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-top: 1rem;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Owner Section */
+    .owner-section {
+        padding: 1.5rem;
+        background: var(--bg-light);
+        border-radius: var(--radius-lg);
+    }
+
+    .owner-section h3 {
+        font-size: 1.1rem;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .owner-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .owner-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border-color);
+    }
+
+    .owner-avatar-placeholder {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .owner-details {
+        flex: 1;
+    }
+
+    .owner-name {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: var(--primary-dark);
+        margin-bottom: 0.25rem;
+    }
+
+    .owner-username {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+    }
+
+    .contact-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .contact-btn:hover {
+        background-color: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .your-listing-notice {
+        padding: 1rem;
+        background: #eff6ff;
+        border-left: 3px solid #3b82f6;
+        color: #1e40af;
+        border-radius: var(--radius-md);
+        text-align: center;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Action Buttons for Owner */
+    .owner-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .edit-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: white;
+        color: var(--primary-color);
+        border: 2px solid var(--primary-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .edit-btn:hover {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    /* Special styling for Mark as Sold/Available buttons */
+    .mark-sold-btn {
+        border-color: #f59e0b !important;
+        color: #f59e0b !important;
+    }
+
+    .mark-sold-btn:hover {
+        background-color: #f59e0b !important;
+        color: white !important;
+    }
+
+    .mark-available-btn {
+        border-color: #10b981 !important;
+        color: #10b981 !important;
+    }
+
+    .mark-available-btn:hover {
+        background-color: #10b981 !important;
+        color: white !important;
+    }
+
+    .delete-btn {
+        width: 100%;
+        padding: 1rem;
+        background-color: white;
+        color: var(--error-color);
+        border: 2px solid var(--error-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+    }
+
+    .delete-btn:hover {
+        background-color: var(--error-color);
+        color: white;
+    }
+
+    /* Additional Info Section */
+    .info-section {
+        padding-top: 1.5rem;
+        border-top: 2px solid var(--bg-light);
+    }
+
+    .info-section h3 {
+        font-size: 1.1rem;
+        color: var(--primary-dark);
+        margin-bottom: 0.75rem;
+        font-weight: 700;
+    }
+
+    .info-section p {
+        color: var(--text-light);
+        line-height: 1.7;
+    }
+
+    .empty-description {
+        color: var(--text-muted);
+        font-style: italic;
+    }
+
+    /* Tags Section */
+    .listing-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .listing-tag {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: var(--bg-light);
+        border: 1px solid var(--border-color);
+        border-radius: var(--radius-full);
+        font-size: 0.85rem;
+        color: var(--text-base);
+        text-decoration: none;
+        transition: all 0.2s;
+    }
+
+    .listing-tag:hover {
+        background: var(--primary-50);
+        border-color: var(--primary-100);
+        color: var(--primary-dark);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 968px) {
+        .listing-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .listing-main-image {
+            height: 400px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .listing-detail-container {
+            padding: 1rem;
+        }
+
+        .listing-image-section,
+        .listing-details-section {
+            padding: 1.5rem;
+        }
+
+        .listing-title {
+            font-size: 1.5rem;
+        }
+
+        .listing-main-image {
+            height: 300px;
+        }
+    }
+
+    /* Confirmation Modal Styles */
+    .confirmation-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s;
+    }
+
+    .confirmation-modal.show {
+        display: flex;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .confirmation-modal-content {
+        background: white;
+        padding: 2.5rem;
+        border-radius: var(--radius-lg);
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s;
+        text-align: center;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .confirmation-icon {
+        width: 80px;
+        height: 80px;
+        background: #fef2f2;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        color: #f59e0b;
+    }
+
+    .confirmation-title {
+        font-size: 1.75rem;
+        color: var(--primary-dark);
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .confirmation-message {
+        color: var(--text-dark);
+        line-height: 1.7;
+        margin-bottom: 1rem;
+        font-size: 1rem;
+    }
+
+    .confirmation-note {
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        margin-bottom: 2rem;
+    }
+
+    .confirmation-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .btn-cancel-modal {
+        flex: 1;
+        padding: 1rem;
+        background-color: white;
+        color: var(--text-dark);
+        border: 2px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-cancel-modal:hover {
+        background-color: var(--bg-light);
+        border-color: var(--primary-color);
+    }
+
+    .btn-confirm-modal {
+        width: 100%;
+        padding: 1rem;
+        background-color: #f59e0b;
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-confirm-modal:hover {
+        background-color: #d97706;
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Report Button */
+    .report-btn {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background-color: white;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        text-align: center;
+        display: inline-block;
+        margin-top: 0.75rem;
+    }
+
+    .report-btn:hover {
+        background-color: #ef4444;
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="listing-detail-container">
+    <a href="{% url 'public_listings' %}" class="back-link">
+        ← Back to Listings
+    </a>
+
+    <div class="listing-layout">
+        <!-- Image Section -->
+        <div class="listing-image-section">
+            <div class="listing-main-image">
+                {% if listing.image %}
+                    <img src="{{ listing.image.url }}" alt="{{ listing.title }}">
+                {% else %}
+                    <div class="no-image-placeholder">
+                        <span>📷</span>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Details Section -->
+        <div class="listing-details-section">
+            <!-- Listing Header -->
+            <div class="listing-header">
+                <h1 class="listing-title">{{ listing.title }}</h1>
+                
+                <div class="listing-meta">
+                    <div class="meta-item">
+                        <span class="meta-icon">📅</span>
+                        <span>Posted {{ listing.created_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% if listing.created_at != listing.updated_at %}
+                    <div class="meta-item">
+                        <span class="meta-icon">✏️</span>
+                        <span>Updated {{ listing.updated_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                {% if listing.is_active %}
+                    <span class="status-badge status-active">Active</span>
+                {% else %}
+                    <span class="status-badge status-inactive">Inactive</span>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            {% if listing.description %}
+            <div class="info-section">
+                <h3>Description</h3>
+                <p>{{ listing.description }}</p>
+            </div>
+            {% endif %}
+
+            <!-- Tags -->
+            {% if listing.tags %}
+            <div class="info-section">
+                <h3>Tags</h3>
+                <div class="listing-tags">
+                    {% for tag_value, tag_display in listing.get_tags_with_display %}
+                        <a href="{% url 'public_listings' %}?tag={{ tag_value }}" class="listing-tag">{{ tag_display }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Owner Section -->
+            <div class="owner-section">
+                <h3>Posted By</h3>
+                <div class="owner-info">
+                    {% if listing.owner.profile.image %}
+                        <img src="{{ listing.owner.profile.image.url }}" 
+                             alt="{{ listing.owner.profile.get_display_name }}"
+                             class="owner-avatar">
+                    {% else %}
+                        <div class="owner-avatar-placeholder">
+                            {{ listing.owner.username|first|upper }}
+                        </div>
+                    {% endif %}
+                    <div class="owner-details">
+                        <div class="owner-name">{{ listing.owner.profile.get_display_name }}</div>
+                        <div class="owner-username">@{{ listing.owner.username }}</div>
+                    </div>
+                </div>
+
+                {% if request.user == listing.owner %}
+                    <!-- Owner's own listing -->
+                    <div class="your-listing-notice">
+                        This is your listing
+                    </div>
+                    
+                    <div class="owner-actions">
+                        <a href="{% url 'edit_listing' listing.id %}" class="edit-btn">
+                            Edit Listing
+                        </a>
+                        {% if listing.is_active %}
+                        <button type="button" class="edit-btn mark-sold-btn" onclick="showSoldConfirmation()">
+                            Mark as Sold
+                        </button>
+                        {% else %}
+                        <form method="post" action="{% url 'toggle_listing_status' listing.id %}" style="margin: 0;">
+                            {% csrf_token %}
+                            <button type="submit" class="edit-btn mark-available-btn">
+                                Mark as Available
+                            </button>
+                        </form>
+                        {% endif %}
+                        <a href="{% url 'delete_listing' listing.id %}" class="delete-btn">
+                            Delete Listing
+                        </a>
+                    </div>
+
+                <!-- Confirmation Modal for Mark as Sold -->
+                {% if listing.is_active %}
+                <div id="soldConfirmationModal" class="confirmation-modal">
+                    <div class="confirmation-modal-content">
+                        <div class="confirmation-icon">✓</div>
+                        <h2 class="confirmation-title">Mark as Sold?</h2>
+                        <p class="confirmation-message">
+                            This will mark "<strong>{{ listing.title }}</strong>" as sold. 
+                            The listing will still be visible but won't be clickable and will show a SOLD badge.
+                    
+                        </p>
+                        <p class="confirmation-note">
+                            You can mark it as available again later if needed.
+                        </p>
+                        <div class="confirmation-actions">
+                            <button type="button" class="btn-cancel-modal" onclick="hideSoldConfirmation()">
+                                Cancel
+                            </button>
+                            <form method="post" action="{% url 'toggle_listing_status' listing.id %}" style="margin: 0; flex: 1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-confirm-modal">
+                                    Yes, Mark as Sold
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+                {% else %}
+                    <!-- Someone else's listing -->
+                    <a href="{% url 'messaging:start_thread' listing.owner.username %}" class="contact-btn">
+                        Contact Seller
+                    </a>
+                    
+                    <a href="{% url 'flag_listing' listing.id %}" class="report-btn">
+                        Report Listing
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function showSoldConfirmation() {
+    document.getElementById('soldConfirmationModal').classList.add('show');
+}
+
+function hideSoldConfirmation() {
+    document.getElementById('soldConfirmationModal').classList.remove('show');
+}
+
+// Close modal when clicking outside of it
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('soldConfirmationModal');
+    if (modal && event.target === modal) {
+        hideSoldConfirmation();
+    }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        hideSoldConfirmation();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,709 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile Settings - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .profile-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+    }
+
+    .profile-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    /* Page Header */
+    .profile-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .profile-header h1 {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-1);
+    }
+
+    .profile-header p {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+    }
+
+    /* Profile Layout */
+    .profile-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: var(--space-6);
+    }
+
+    /* Profile Preview Sidebar */
+    .profile-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-5);
+    }
+
+    .profile-preview {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        text-align: center;
+    }
+
+    .profile-avatar-container {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        margin: 0 auto var(--space-4);
+    }
+
+    .profile-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: var(--radius-full);
+        object-fit: cover;
+        border: 3px solid var(--primary-100);
+    }
+
+    .profile-name {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .profile-email {
+        font-size: var(--font-size-sm);
+        color: var(--text-muted);
+        word-break: break-all;
+    }
+
+    .profile-stats {
+        margin-top: var(--space-4);
+        padding-top: var(--space-4);
+        border-top: 1px solid var(--border-light);
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-2) 0;
+    }
+
+    .stat-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .stat-value {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    /* Quick Links Sidebar */
+    .quick-links-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-4);
+    }
+
+    .quick-links-title {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-3);
+    }
+
+    .quick-links-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .quick-link {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        padding: var(--space-2) var(--space-3);
+        border-radius: var(--radius-md);
+        text-decoration: none;
+        color: var(--text-base);
+        font-size: var(--font-size-sm);
+        transition: all var(--transition-fast);
+    }
+
+    .quick-link:hover {
+        background: var(--bg-subtle);
+        color: var(--primary-color);
+    }
+
+    .quick-link-icon {
+        font-size: var(--font-size-base);
+    }
+
+    /* Profile Form Main Area */
+    .profile-form-container {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .form-section {
+        padding: var(--space-5);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .form-section-header {
+        margin-bottom: var(--space-4);
+    }
+
+    .form-section-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .form-section-description {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .form-group {
+        margin-bottom: var(--space-4);
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .form-label {
+        display: block;
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        color: var(--text-dark);
+        margin-bottom: var(--space-2);
+    }
+
+    .form-help {
+        display: block;
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+        margin-top: var(--space-1);
+    }
+
+    .form-input,
+    .form-textarea,
+    .form-select {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus,
+    .form-select:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-50);
+        outline: none;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--space-4);
+    }
+
+    /* File Input */
+    .file-input-wrapper {
+        position: relative;
+    }
+
+    .file-input-label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        padding: var(--space-4);
+        background: var(--bg-subtle);
+        border: 2px dashed var(--border-color);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+    }
+
+    .file-input-label:hover {
+        border-color: var(--primary-color);
+        background: var(--primary-50);
+        color: var(--primary-color);
+    }
+
+    .file-input {
+        position: absolute;
+        left: -9999px;
+    }
+
+    /* Checkbox */
+    .checkbox-group {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+    }
+
+    .form-checkbox {
+        width: 18px;
+        height: 18px;
+        margin-top: 2px;
+        cursor: pointer;
+        accent-color: var(--primary-color);
+        flex-shrink: 0;
+    }
+
+    .checkbox-label {
+        flex: 1;
+        cursor: pointer;
+    }
+
+    .checkbox-label-text {
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: var(--space-3);
+        padding: var(--space-4) var(--space-5);
+        background: var(--bg-subtle);
+        border-top: 1px solid var(--border-light);
+    }
+
+    .form-actions .btn {
+        padding: var(--space-3) var(--space-5);
+    }
+
+    .btn-cancel {
+        background: var(--bg-white);
+        color: var(--text-base);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-cancel:hover {
+        background: var(--bg-subtle);
+    }
+
+    /* Danger Zone */
+    .danger-zone {
+        margin-top: var(--space-6);
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+    }
+
+    .danger-zone-header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-3);
+        margin-bottom: var(--space-3);
+    }
+
+    .danger-zone-icon {
+        width: 36px;
+        height: 36px;
+        background: #fee2e2;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+    }
+
+    .danger-zone-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: #991b1b;
+    }
+
+    .danger-zone-text {
+        font-size: var(--font-size-sm);
+        color: #7f1d1d;
+        margin-bottom: var(--space-4);
+    }
+
+    .btn-danger {
+        padding: var(--space-2) var(--space-4);
+        background: #dc2626;
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .btn-danger:hover {
+        background: #b91c1c;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        .profile-container {
+            padding: var(--space-4);
+        }
+
+        .profile-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-sidebar {
+            order: 0;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .form-actions .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-page">
+    <div class="profile-container">
+        <div class="profile-header">
+            <h1>Profile Settings</h1>
+            <p>Manage your account information and preferences</p>
+        </div>
+
+        <div class="profile-layout">
+            <!-- Sidebar -->
+            <div class="profile-sidebar">
+                <!-- Profile Preview Card -->
+                <div class="profile-preview">
+                    <div class="profile-avatar-container">
+                        <img src="{{ user.profile.image.url }}" 
+                             alt="Profile picture" 
+                             class="profile-avatar"
+                             id="avatar-preview">
+                    </div>
+                    <div class="profile-name">{{ user.profile.get_display_name }}</div>
+                    <div class="profile-email">{{ user.email }}</div>
+
+                    <div class="profile-stats">
+                        {% if user.profile.school_year %}
+                        <div class="stat-item">
+                            <span class="stat-label">Year</span>
+                            <span class="stat-value">{{ user.profile.get_school_year_display }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="stat-item">
+                            <span class="stat-label">Bags Picked</span>
+                            <span class="stat-value">{{ user.profile.bags_picked }}</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Member Since</span>
+                            <span class="stat-value">{{ user.date_joined|date:"M Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Links Card -->
+                <div class="quick-links-card">
+                    <div class="quick-links-title">Quick Links</div>
+                    <div class="quick-links-list">
+                        <a href="{% url 'dashboard' %}" class="quick-link">
+                            <span class="quick-link-icon">📊</span>
+                            Dashboard
+                        </a>
+                        <a href="{% url 'messaging:inbox' %}" class="quick-link">
+                            <span class="quick-link-icon">💬</span>
+                            Messages
+                        </a>
+                        <a href="{% url 'public_listings' %}" class="quick-link">
+                            <span class="quick-link-icon">🔍</span>
+                            Browse Listings
+                        </a>
+                        {% if user.is_staff or user.is_superuser %}
+                        <a href="{% url 'admin-dashboard' %}" class="quick-link">
+                            <span class="quick-link-icon">⚙️</span>
+                            Admin Panel
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Form Area -->
+            <div class="profile-main">
+                <form method="POST" enctype="multipart/form-data" class="profile-form-container" aria-label="Profile update form">
+                    {% csrf_token %}
+                    
+                    <!-- Profile Picture Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <div class="form-section-title">Profile Picture</div>
+                            <div class="form-section-description">Upload a photo to personalize your profile</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="file-input-wrapper">
+                                <label for="{{ form.image.id_for_label }}" class="file-input-label">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                        <polyline points="17 8 12 3 7 8"/>
+                                        <line x1="12" y1="3" x2="12" y2="15"/>
+                                    </svg>
+                                    <span>Click to upload new photo</span>
+                                </label>
+                                {{ form.image }}
+                            </div>
+                            <span class="form-help">Recommended: Square image, at least 400×400px</span>
+                        </div>
+                    </div>
+
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <div class="form-section-title">Basic Information</div>
+                            <div class="form-section-description">How others will see you on HooExchange</div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="{{ form.display_name.id_for_label }}" class="form-label">Display Name</label>
+                                <input type="text" 
+                                       name="{{ form.display_name.name }}" 
+                                       id="{{ form.display_name.id_for_label }}"
+                                       value="{{ form.display_name.value|default:'' }}"
+                                       class="form-input"
+                                       maxlength="64"
+                                       placeholder="Your display name">
+                            </div>
+                            <div class="form-group">
+                                <label for="{{ form.school_year.id_for_label }}" class="form-label">School Year</label>
+                                <select name="{{ form.school_year.name }}" 
+                                        id="{{ form.school_year.id_for_label }}"
+                                        class="form-input form-select">
+                                    <option value="">Select year</option>
+                                    <option value="first" {% if form.school_year.value == 'first' %}selected{% endif %}>First Year</option>
+                                    <option value="second" {% if form.school_year.value == 'second' %}selected{% endif %}>Second Year</option>
+                                    <option value="third" {% if form.school_year.value == 'third' %}selected{% endif %}>Third Year</option>
+                                    <option value="fourth" {% if form.school_year.value == 'fourth' %}selected{% endif %}>Fourth Year</option>
+                                    <option value="grad" {% if form.school_year.value == 'grad' %}selected{% endif %}>Graduate</option>
+                                    <option value="other" {% if form.school_year.value == 'other' %}selected{% endif %}>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- About Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <div class="form-section-title">About You</div>
+                            <div class="form-section-description">Tell others a bit about yourself</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">Bio</label>
+                            <textarea name="{{ form.bio.name }}" 
+                                      id="{{ form.bio.id_for_label }}"
+                                      class="form-textarea"
+                                      maxlength="500"
+                                      rows="3"
+                                      placeholder="A brief introduction about yourself...">{{ form.bio.value|default:'' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.sustainability_interests.id_for_label }}" class="form-label">Interests</label>
+                            <textarea name="{{ form.sustainability_interests.name }}" 
+                                      id="{{ form.sustainability_interests.id_for_label }}"
+                                      class="form-textarea"
+                                      maxlength="500"
+                                      rows="3"
+                                      placeholder="What kinds of items are you looking for or selling?">{{ form.sustainability_interests.value|default:'' }}</textarea>
+                        </div>
+                    </div>
+
+                    <!-- Notifications Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <div class="form-section-title">Notifications</div>
+                            <div class="form-section-description">Manage how we contact you</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" 
+                                       name="{{ form.email_notifications.name }}" 
+                                       id="{{ form.email_notifications.id_for_label }}"
+                                       class="form-checkbox"
+                                       {% if form.email_notifications.value %}checked{% endif %}>
+                                <label for="{{ form.email_notifications.id_for_label }}" class="checkbox-label">
+                                    <span class="checkbox-label-text">Email notifications</span>
+                                    <span class="form-help">Receive updates about messages and listing activity</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- In-App Notifications Section -->
+                    <div class="form-section">
+                        <div class="form-section-header">
+                            <div class="form-section-title">In-App Notifications</div>
+                            <div class="form-section-description">Get real-time pop-up notifications while browsing</div>
+                        </div>
+                        <div class="form-group">
+                            <div class="checkbox-group">
+                                <input type="checkbox" 
+                                       name="{{ form.inapp_notifications_enabled.name }}" 
+                                       id="{{ form.inapp_notifications_enabled.id_for_label }}"
+                                       class="form-checkbox"
+                                       data-toggle-inapp="master"
+                                       {% if form.inapp_notifications_enabled.value %}checked{% endif %}>
+                                <label for="{{ form.inapp_notifications_enabled.id_for_label }}" class="checkbox-label">
+                                    <span class="checkbox-label-text">Enable in-app notifications</span>
+                                    <span class="form-help">Show pop-up notifications at the bottom right of your screen</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div id="inapp-notification-options" class="notification-options" style="margin-top: var(--space-4); padding-left: var(--space-6); border-left: 2px solid var(--border-light);">
+                            <div class="form-section-description" style="margin-bottom: var(--space-3); font-weight: 500; color: var(--text-dark);">
+                                Choose which notifications to receive:
+                            </div>
+                            <div class="form-group" style="margin-bottom: var(--space-3);">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" 
+                                           name="{{ form.notify_new_message.name }}" 
+                                           id="{{ form.notify_new_message.id_for_label }}"
+                                           class="form-checkbox inapp-option"
+                                           {% if form.notify_new_message.value %}checked{% endif %}>
+                                    <label for="{{ form.notify_new_message.id_for_label }}" class="checkbox-label">
+                                        <span class="checkbox-label-text">New messages</span>
+                                        <span class="form-help">When someone sends you a message</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-bottom: var(--space-3);">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" 
+                                           name="{{ form.notify_message_request.name }}" 
+                                           id="{{ form.notify_message_request.id_for_label }}"
+                                           class="form-checkbox inapp-option"
+                                           {% if form.notify_message_request.value %}checked{% endif %}>
+                                    <label for="{{ form.notify_message_request.id_for_label }}" class="checkbox-label">
+                                        <span class="checkbox-label-text">Message requests</span>
+                                        <span class="form-help">When someone wants to start a conversation</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="checkbox-group">
+                                    <input type="checkbox" 
+                                           name="{{ form.notify_group_added.name }}" 
+                                           id="{{ form.notify_group_added.id_for_label }}"
+                                           class="form-checkbox inapp-option"
+                                           {% if form.notify_group_added.value %}checked{% endif %}>
+                                    <label for="{{ form.notify_group_added.id_for_label }}" class="checkbox-label">
+                                        <span class="checkbox-label-text">Group chats</span>
+                                        <span class="form-help">When you're added to a group conversation</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <a href="{% url 'dashboard' %}" class="btn btn-cancel">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+
+                <!-- Danger Zone -->
+                <div class="danger-zone">
+                    <div class="danger-zone-header">
+                        <div class="danger-zone-icon">⚠️</div>
+                        <div class="danger-zone-title">Delete Account</div>
+                    </div>
+                    <p class="danger-zone-text">Once you delete your account, all your data including listings will be permanently removed. This action cannot be undone.</p>
+                    <a href="{% url 'delete_profile' %}" class="btn btn-danger">Delete My Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('{{ form.image.id_for_label }}').addEventListener('change', function(e) {
+    if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            document.getElementById('avatar-preview').src = event.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    }
+});
+
+// Toggle in-app notification options visibility
+(function() {
+    const masterToggle = document.querySelector('[data-toggle-inapp="master"]');
+    const optionsContainer = document.getElementById('inapp-notification-options');
+    const optionCheckboxes = document.querySelectorAll('.inapp-option');
+    
+    function updateOptionsVisibility() {
+        if (masterToggle.checked) {
+            optionsContainer.style.opacity = '1';
+            optionsContainer.style.pointerEvents = 'auto';
+            optionCheckboxes.forEach(cb => cb.disabled = false);
+        } else {
+            optionsContainer.style.opacity = '0.5';
+            optionsContainer.style.pointerEvents = 'none';
+            optionCheckboxes.forEach(cb => cb.disabled = true);
+        }
+    }
+    
+    masterToggle.addEventListener('change', updateOptionsVisibility);
+    updateOptionsVisibility(); // Initial state
+})();
+</script>
+{% endblock %}

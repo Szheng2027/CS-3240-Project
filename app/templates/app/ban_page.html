@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+
+{% block title %}Account Suspended - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --card-bg: #ffffff;
+    --muted: #6b7280;
+    --accent: #ef4444;
+    --accent-100: #fff5f5;
+    --success: #059669;
+    --border: #e6e6e6;
+    --radius-md: 12px;
+    --shadow: 0 8px 24px rgba(15,23,42,0.06);
+    --gap: 18px;
+  }
+
+  .ban-page {
+    background: var(--bg-body);
+    min-height: calc(100vh - 200px);
+    padding: 32px 0;
+  }
+
+  .ban-container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .ban-header { text-align:center; margin-bottom: 14px; }
+  .ban-header h1 { margin:0; font-size:1.5rem; letter-spacing:-0.2px; }
+  .ban-header p { margin:8px 0 0; color:var(--muted); }
+
+  .profile-preview {
+    display:flex;
+    gap: 18px;
+    align-items:center;
+    margin-bottom: 18px;
+  }
+
+  .profile-avatar {
+    width:88px; height:88px;
+    border-radius:9999px;
+    object-fit:cover;
+    border: 3px solid rgba(99,102,241,0.06);
+    display:inline-block;
+    background: #f3f4f6;
+    font-weight:700;
+    font-size:28px;
+    color:#374151;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .profile-meta { display:flex; flex-direction:column; gap:4px; }
+  .profile-name { font-weight:700; font-size:1.05rem; }
+  .profile-email { color:var(--muted); font-size:0.95rem; }
+
+  .ban-info { margin-bottom: 18px; }
+  .ban-reason {
+    background: var(--accent-100);
+    border: 1px solid #ffd6d6;
+    padding: 14px;
+    border-radius: 10px;
+    color: #7f1d1d;
+    line-height:1.35;
+  }
+
+  .status-row { display:flex; gap:12px; align-items:center; margin-top:12px; }
+  .badge {
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:6px 10px;
+    border-radius:999px;
+    font-weight:700;
+    font-size:0.85rem;
+  }
+  .badge.banned { background:#fff1f2; color:#b91c1c; border:1px solid #ffd6d6; }
+  .badge.active { background:#ecfdf5; color:#065f46; border:1px solid #bbf7d0; }
+
+  .appeal-section { margin-top:18px; }
+  .appeal-section h3 { margin:0 0 8px 0; }
+  .appeal-form .form-group { margin-bottom:12px; display:flex; flex-direction:column; gap:6px; }
+  .form-input, .form-textarea, .form-file {
+    width:100%;
+    padding:10px 12px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:0.95rem;
+    background: #fff;
+  }
+  .form-textarea { min-height:120px; resize:vertical; }
+
+  .form-help { color:var(--muted); font-size:0.875rem; }
+
+  .actions { display:flex; gap:12px; margin-top:14px; justify-content:flex-end; }
+  .btn {
+    padding: 10px 14px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    border:1px solid transparent;
+  }
+  .appeal-form .form-input,
+  .appeal-form input[type="text"],
+  .appeal-form input[type="email"],
+  .appeal-form input[type="file"],
+  .appeal-form .form-textarea,
+  .appeal-form textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border-radius: 10px;
+    border: 1px solid #e6edf3;
+    background: #ffffff;
+    font-size: 0.96rem;
+    color: #0f172a;
+    box-shadow: inset 0 1px 2px rgba(16,24,40,0.03);
+    transition: border-color .15s ease, box-shadow .15s ease, transform .06s ease;
+  }
+
+  .appeal-form input::placeholder,
+  .appeal-form textarea::placeholder {
+    color: #94a3b8;
+  }
+
+  .appeal-form input:focus,
+  .appeal-form textarea:focus {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 6px rgba(96,165,250,0.08);
+    transform: translateY(-1px);
+  }
+
+  /* nicer file input area */
+  .appeal-form input[type="file"] {
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: #fbfdff;
+  }
+
+  /* smaller error text */
+  .appeal-form .errorlist { margin:6px 0 0; color:#b91c1c; font-size:0.9rem; }
+
+  /* keep existing rules below... */
+  .btn-primary { background:var(--accent); color:white; border-color:#b91c1c; }
+  .btn-primary:hover { filter:brightness(.85); }
+  .btn-secondary { background:#fff; color:#111827; border:1px solid var(--border); }
+
+  @media (max-width:780px){
+    .profile-preview { flex-direction:column; align-items:flex-start; gap:12px; }
+    .actions { justify-content:flex-start; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ban-page">
+  <div class="ban-container">
+    <div class="ban-header">
+      <h1>Account Suspended</h1>
+      <p>If you believe this is an error you may submit an appeal. Admins will review it and respond.</p>
+    </div>
+
+    <div class="card">
+      <div class="profile-preview">
+        {% if user.profile.image %}
+          <img src="{{ user.profile.image.url }}" alt="avatar" class="profile-avatar">
+        {% else %}
+          <div class="profile-avatar">{{ user.profile.get_display_name|default:user.username|slice:":1"|upper }}</div>
+        {% endif %}
+
+        <div class="profile-meta">
+          <div class="profile-name">{{ user.profile.get_display_name|default:user.username }}</div>
+          <div class="profile-email">{{ user.email }}</div>
+          <div class="status-row">
+            <strong>Status:</strong>
+            {% if user.profile.banned %}
+              <span class="badge banned">Banned</span>
+            {% else %}
+              <span class="badge active">Active</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="ban-info">
+        <h3 style="margin-bottom:8px;">Why this account is banned</h3>
+        <div class="ban-reason">
+          {% if user.profile.ban_reason %}
+            {{ user.profile.ban_reason }}
+          {% else %}
+            The account was suspended by an administrator. Contact support if you need more information.
+          {% endif %}
+        </div>
+      </div>
+
+      
+<div class="appeal-section">
+  <h3>Appeal history</h3>
+  <p class="form-help">All past appeals are listed below. If you have a pending appeal you cannot submit a new one.</p>
+
+  {% if all_appeals %}
+    <div style="margin-top:12px; display:flex;flex-direction:column;gap:12px;">
+      {% for a in all_appeals %}
+        <div class="card" style="padding:12px;border:1px solid #eef2f7;border-radius:10px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+            <div>
+              <strong>{{ a.subject }}</strong>
+              <div style="color:var(--muted);font-size:0.92rem;">Submitted {{ a.created_at|date:"Y-m-d H:i" }}</div>
+            </div>
+
+            {% if a.status == "pending" %}
+              <div class="badge" style="background:#fffbeb;color:#b45309;border:1px solid #fde68a;padding:6px 10px;border-radius:999px;font-weight:700;">Pending</div>
+            {% elif a.status == "accepted" %}
+              <div class="badge" style="background:#ecfdf5;color:#065f46;border:1px solid #bbf7d0;padding:6px 10px;border-radius:999px;font-weight:700;">Accepted</div>
+            {% else %}
+              <div class="badge" style="background:#fff1f2;color:#9f1239;border:1px solid #fecaca;padding:6px 10px;border-radius:999px;font-weight:700;">Rejected</div>
+            {% endif %}
+          </div>
+
+          <div style="margin-top:8px;white-space:pre-wrap;color:#0f172a;">{{ a.message }}</div>
+
+          {% if a.evidence %}
+            <div style="margin-top:8px;"><a href="{{ a.evidence.url }}" target="_blank">View evidence</a></div>
+          {% endif %}
+
+          {% if a.admin_response %}
+            <div style="margin-top:8px;padding:8px;border-radius:8px;background:#f8fafc;border:1px solid #e6eef7;"><strong>Admin reply:</strong> {{ a.admin_response|linebreaksbr }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="margin-top:12px;color:var(--muted);">No appeals yet.</div>
+  {% endif %}
+
+  <!-- submission form: hidden if there's any pending appeal -->
+  {% if pending_appeals and pending_appeals.exists %}
+    <div style="margin-top:14px;color:var(--muted);font-weight:600;">
+      You have an active appeal under review. You cannot submit a new appeal until it is resolved.
+    </div>
+  {% else %}
+    <div style="margin-top:14px;">
+      <h3>Submit an Appeal</h3>
+      <p class="form-help">Explain why your ban should be lifted and attach evidence (optional).</p>
+      <br>
+      <form method="post" enctype="multipart/form-data" class="appeal-form" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="form-group">
+          {{ form.subject.label_tag }}
+          {{ form.subject }}
+          {{ form.subject.errors }}
+        </div>
+
+        <div class="form-group">
+          {{ form.message.label_tag }}
+          {{ form.message }}
+          {{ form.message.errors }}
+        </div>
+
+        <div class="form-group">
+          {{ form.evidence.label_tag }}
+          {{ form.evidence }}
+          {{ form.evidence.errors }}
+        </div>
+
+        <div class="actions">
+          <a href="{% url 'home' %}" class="btn btn-secondary">Back</a>
+          <button type="submit" class="btn btn-primary">Submit Appeal</button>
+        </div>
+      </form>
+    </div>
+  {% endif %}
+</div>
+    </div>
+  </div>
+</div>
+{% endblock %}

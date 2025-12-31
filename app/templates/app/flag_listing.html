@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+
+{% block title %}Report Listing - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .flag-page {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+        background: var(--bg-body);
+    }
+
+    .flag-container {
+        max-width: 600px;
+        width: 100%;
+    }
+
+    .flag-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .flag-header {
+        text-align: center;
+        padding: 2.5rem 2rem 2rem;
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .flag-icon {
+        width: 64px;
+        height: 64px;
+        background: #fef2f2;
+        border-radius: var(--radius-xl);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: #ef4444;
+        font-size: 2rem;
+    }
+
+    .flag-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .flag-header p {
+        color: var(--text-light);
+        font-size: 0.95rem;
+    }
+
+    .flag-body {
+        padding: 2rem;
+    }
+
+    .listing-preview {
+        background: var(--bg-subtle);
+        padding: 1.25rem;
+        border-radius: var(--radius-md);
+        margin-bottom: 2rem;
+        border-left: 3px solid #ef4444;
+    }
+
+    .listing-preview-title {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 1rem;
+        margin-bottom: 0.375rem;
+    }
+
+    .listing-preview-owner {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+    }
+
+    .form-group {
+        margin-bottom: 1.75rem;
+    }
+
+    .form-label {
+        display: block;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 0.625rem;
+    }
+
+    .required {
+        color: #ef4444;
+    }
+
+    .form-select,
+    .form-textarea {
+        width: 100%;
+        padding: 0.875rem;
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: 0.95rem;
+        font-family: inherit;
+        transition: all 0.2s;
+        background: var(--bg-white);
+    }
+
+    .form-select:focus,
+    .form-textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px rgba(45, 106, 79, 0.1);
+        outline: none;
+    }
+
+    .form-textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-help {
+        display: block;
+        font-size: 0.8125rem;
+        color: var(--text-muted);
+        margin-top: 0.375rem;
+    }
+
+    .flag-actions {
+        display: flex;
+        gap: 1rem;
+        padding: 1.5rem 2rem;
+        background: var(--bg-subtle);
+        border-top: 1px solid var(--border-light);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        padding: 0.875rem;
+        background: var(--bg-white);
+        color: var(--text-dark);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: var(--bg-subtle);
+    }
+
+    .btn-submit {
+        flex: 1;
+        padding: 0.875rem;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.95rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .btn-submit:hover {
+        background: #dc2626;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    @media (max-width: 640px) {
+        .flag-page {
+            padding: 1rem;
+        }
+
+        .flag-actions {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flag-page">
+    <div class="flag-container">
+        <div class="flag-card">
+            <div class="flag-header">
+                <div class="flag-icon">⚠️</div>
+                <h1>Report Listing</h1>
+                <p>Help us keep HooExchange safe and trustworthy</p>
+            </div>
+
+            <div class="flag-body">
+                <div class="listing-preview">
+                    <div class="listing-preview-title">{{ listing.title }}</div>
+                    <div class="listing-preview-owner">Posted by {{ listing.owner.profile.get_display_name }}</div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="reason" class="form-label">
+                            Reason for reporting <span class="required">*</span>
+                        </label>
+                        <select name="reason" id="reason" class="form-select" required>
+                            <option value="">Select a reason</option>
+                            <option value="spam">Spam or misleading</option>
+                            <option value="inappropriate">Inappropriate content</option>
+                            <option value="harassment">Harassment or bullying</option>
+                            <option value="scam">Scam or fraud</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description" class="form-label">
+                            Additional details
+                        </label>
+                        <textarea 
+                            name="description" 
+                            id="description" 
+                            class="form-textarea"
+                            placeholder="Please provide any additional context that would help us review this report..."
+                        ></textarea>
+                        <span class="form-help">Optional but helpful for our review</span>
+                    </div>
+
+                    <div class="flag-actions">
+                        <a href="{% url 'listing_detail' listing.id %}" class="btn-cancel">Cancel</a>
+                        <button type="submit" class="btn-submit">Submit Report</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,573 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+    }
+
+    .admin-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    /* Admin Header */
+    .admin-header {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+        margin-bottom: var(--space-6);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .admin-info {
+        display: flex;
+        align-items: center;
+        gap: var(--space-4);
+    }
+
+    .admin-avatar {
+        width: 48px;
+        height: 48px;
+        background: linear-gradient(135deg, #dc2626, #ea580c);
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: var(--font-size-lg);
+    }
+
+    .admin-text h1 {
+        font-size: var(--font-size-lg);
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: var(--space-1);
+    }
+
+    .admin-text p {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+    }
+
+    .admin-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: var(--space-1) var(--space-3);
+        background: #fef2f2;
+        color: #dc2626;
+        border-radius: var(--radius-full);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--space-4);
+        margin-bottom: var(--space-6);
+    }
+
+    .stat-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-5);
+    }
+
+    .stat-label {
+        font-size: var(--font-size-sm);
+        color: var(--text-light);
+        margin-bottom: var(--space-2);
+    }
+
+    .stat-value {
+        font-size: var(--font-size-3xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        line-height: 1;
+    }
+
+    .stat-value.success { color: var(--primary-color); }
+
+    /* Admin Sections */
+    .admin-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: var(--space-6);
+    }
+
+    .admin-section {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+    }
+
+    .section-card {
+    background: var(--bg-white);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+    }
+
+    .section-header {
+        padding: var(--space-4) var(--space-5);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .section-title {
+        font-size: var(--font-size-base);
+        font-weight: 600;
+        color: var(--text-dark);
+    }
+
+    .section-body {
+        padding: var(--space-4);
+    }
+
+    /* User Stats List */
+    .user-stats-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+    }
+
+    .user-stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--space-3);
+        background: var(--bg-subtle);
+        border-radius: var(--radius-md);
+        transition: all var(--transition-fast);
+    }
+
+    .user-stat-item:hover {
+        background: var(--primary-50);
+    }
+
+    .user-name {
+        font-size: var(--font-size-sm);
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .user-count {
+        font-size: var(--font-size-sm);
+        font-weight: 600;
+        color: var(--primary-color);
+    }
+
+    /* Listings Table */
+    .listings-table-container {
+        overflow-x: auto;
+    }
+
+    .listings-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .listings-table th {
+        padding: var(--space-3) var(--space-4);
+        text-align: left;
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        color: var(--text-light);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        background: var(--bg-subtle);
+        border-bottom: 1px solid var(--border-light);
+    }
+
+    .listings-table td {
+        padding: var(--space-3) var(--space-4);
+        border-bottom: 1px solid var(--border-light);
+        font-size: var(--font-size-sm);
+        color: var(--text-base);
+    }
+
+    .listings-table tbody tr:hover {
+        background: var(--bg-subtle);
+    }
+
+    .listing-image-thumb {
+        width: 56px;
+        height: 56px;
+        object-fit: cover;
+        border-radius: var(--radius-md);
+    }
+
+    .listing-placeholder-thumb {
+        width: 56px;
+        height: 56px;
+        background: linear-gradient(135deg, var(--primary-50), #e0f2fe);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-lg);
+    }
+
+    .listing-title-cell {
+        font-weight: 500;
+        color: var(--text-dark);
+    }
+
+    .status-badge {
+        display: inline-flex;
+        padding: var(--space-1) var(--space-2);
+        border-radius: var(--radius-sm);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+    }
+
+    .status-active {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .message-link {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        padding: 6px 12px;        
+        background: var(--primary-color);
+        color: white;
+        text-decoration: none;
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-xs);
+        font-weight: 600;
+        transition: all var(--transition-fast);
+    }
+
+    .message-link:hover {
+        background: var(--primary-dark);
+    }
+
+    .your-listing-badge {
+        font-size: var(--font-size-xs);
+        color: var(--text-muted);
+    }
+
+    .search-span {
+        display: flex;
+        gap: 8px;
+        margin: 12px;
+        align-items: center;
+        width: 100%;
+    }
+    .search-input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid var(--border-light);
+        border-radius: 8px;
+        font-size: 0.95rem;
+        background: var(--bg-white);
+        color: var(--text-base);
+    }
+    .search-input:focus {
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+        border-color: var(--primary-color);
+    }
+    .search-button {
+        padding: 9px 14px;
+        border-radius: 8px;
+        border: none;
+        background: var(--primary-color);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .search-button:hover { filter: brightness(.95); }
+    .results-span { 
+        display:block; 
+        margin: 12px; 
+    }
+
+    .btn {
+        padding: .35rem .6rem;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .btn-ban {
+        background: #dc2626; /* red */
+        color: #fff;
+        border: 1px solid #b91c1c;
+    }
+    .btn-ban:hover { filter: brightness(.95); }
+    .btn-unban {
+        background: #fff;
+        color: #b91c1c;
+        border: 1px solid #ffd6d6;
+    }
+    .btn-primary {
+    background: var(--primary-color);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+}
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: var(--space-8);
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+    }
+
+    @media (max-width: 968px) {
+        .admin-container {
+            padding: var(--space-4);
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .admin-header {
+            flex-direction: column;
+            text-align: center;
+            gap: var(--space-3);
+        }
+
+        .admin-info {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <div class="admin-container">
+        <!-- Admin Header -->
+        <div class="admin-header">
+            <div class="admin-info">
+                <div class="admin-avatar">⚙️</div>
+                <div class="admin-text">
+                    <h1>Admin Dashboard</h1>
+                    <p>{{ display_name }} &middot; {{ email }}</p>
+                </div>
+            </div>
+            <span class="admin-badge">
+                <span>●</span> Administrator
+            </span>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Listings</div>
+                <div class="stat-value">{{ listings|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Users</div>
+                <div class="stat-value">{{ counts|length }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">System Status</div>
+                <div class="stat-value success">Healthy</div>
+            </div>
+        </div>
+
+        <!-- Admin Grid -->
+        <div class="admin-grid">
+            <!-- Listings Section -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Listings</h2>
+                </div>
+                {% if listings %}
+                    <div class="listings-table-container">
+                        <table class="listings-table">
+                            <thead>
+                                <tr>
+                                    <th>Image</th>
+                                    <th>Title</th>
+                                    <th>Owner</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for l in listings %}
+                                    <tr>
+                                        <td>
+                                            {% if l.image %}
+                                                <img src="{{ l.image.url }}" 
+                                                     alt="{{ l.title }}" 
+                                                     class="listing-image-thumb"
+                                                     loading="lazy">
+                                            {% else %}
+                                                <div class="listing-placeholder-thumb">📦</div>
+                                            {% endif %}
+                                        </td>
+                                        <td class="listing-title-cell">{{ l.title }}</td>
+                                        <td>{{ l.owner.profile.get_display_name }}</td>
+                                        <td>
+                                            {% if l.is_active %}
+                                                <span class="status-badge status-active">Active</span>
+                                            {% else %}
+                                                <span class="status-badge status-inactive">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ l.created_at|date:"M d" }}</td>
+                                        <td>
+                                            <div style="display:flex;gap:8px;align-items:center;">
+                                                {% if l.owner.username != request.user.username %}
+                                                    <a href="{% url 'messaging:start_thread' l.owner.username %}" 
+                                                       class="message-link">Message</a>
+                                                    {% if l.owner.profile.banned %}
+                                                        <a href="{% url 'ban_user' l.owner.id %}?next={{ request.get_full_path|urlencode }}"
+                                                           class="btn btn-unban"
+                                                           style="padding:6px 12px;font-size:0.85rem;text-decoration:none;background:#10b981;color:#fff;border:1px solid #059669;border-radius:6px;font-weight:600;">
+                                                            Unban
+                                                        </a>
+                                                    {% else %}
+                                                        <a href="{% url 'ban_user' l.owner.id %}?next={{ request.get_full_path|urlencode }}"
+                                                           class="btn btn-ban">
+                                                            Ban User
+                                                        </a>
+                                                    {% endif %}
+                                                
+                                                {% else %}
+                                                    <span class="your-listing-badge">You</span>
+                                                {% endif %}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        <p>No listings available yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- User Stats Sidebar -->
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2 class="section-title">Users</h2>
+                </div>
+                <form method="get" action="{% url 'admin-dashboard' %}" style="margin-bottom:12px;display:flex;gap:8px;">
+                    <span class="search-span">
+                        <input
+                            type="search"
+                            name="search"
+                            class="search-input"
+                            placeholder="Search users by name, username or email"
+                            value="{{ search_query|default:'' }}"
+                            style="flex:1;padding:8px;border:1px solid var(--border-light);border-radius:6px;"
+                        />
+                        <button type="submit" class="search-button" style="padding:8px 12px;border:none;cursor:pointer;">Search</button>
+                    </span>
+                </form>
+
+                <!-- Middle: search results (if any) -->
+                {% if search_query %}
+                    <span class="results-span">
+                        {% if users %}
+                            <div class="user-stats-list" style="max-height:300px;overflow:auto;margin-bottom:12px;">
+                                {% for u in users %}
+                                <!-- make each user item stack info on top and buttons below -->
+                                <div class="user-stat-item" style="display:flex;flex-direction:column;align-items:stretch;gap:8px;">
+                                    <!-- top: user info -->
+                                    <div style="display:flex;justify-content:space-between;align-items:center;">
+                                        <div>
+                                            <div class="user-name">
+                                                {% if u.profile and u.profile.display_name %}
+                                                    {{ u.profile.display_name }}
+                                                {% else %}
+                                                    {{ u.get_full_name|default:u.username }}
+                                                {% endif %}
+                                            </div>
+                                            <div style="font-size:0.85rem;color:var(--text-light)">{{ u.email }}</div>
+                                        </div>
+                                    </div>
+
+                                    <!-- bottom: actions (buttons) -->
+                                    <div style="display:flex;gap:8px;justify-content:flex-end;align-items:center;">
+                                        
+
+                                        <form method="post" action="{% url 'ban_user' u.id %}" style="display:inline;">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                            {% if request.user.username != u.username %}
+                                                {% if u.profile and u.profile.banned %}
+                                                    <button type="submit" class="btn btn-unban">Unban</button>
+                                                {% else %}
+                                                    <button type="submit" class="btn btn-ban">Ban</button>
+                                                {% endif %}
+                                            {% endif %}
+                                        </form>
+                                        {% if request.user.username != u.username %}
+                                            <a href="{% url 'messaging:start_thread' u.username %}" class="message-link" style="padding:.3rem .6rem;font-size:.85rem;">Message</a>
+                                        {% else %}
+                                            <span class="your-listing-badge">You</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="empty-state" style="margin-bottom:12px;">
+                                <p>No users match your search.</p>
+                            </div>
+                        {% endif %}
+                    </span>
+                {% endif %}
+                <div class="section-header">
+                    <h2 class="section-title">Listings by User</h2>
+                </div>
+                <div class="section-body">
+                    {% if counts %}
+                        <div class="user-stats-list">
+                            {% for c in counts %}
+                                <div class="user-stat-item">
+                                    <span class="user-name">{{ c.display_name }}</span>
+                                    <span class="user-count">{{ c.n }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="empty-state">
+                            <p>No user data yet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>      
+        </div>
+    </div>
+</div>
+{% endblock %}

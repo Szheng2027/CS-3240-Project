@@ -1,0 +1,262 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Group Chat - HooExchange{% endblock %}
+
+{% block extra_css %}
+<style>
+    .group-page {
+        background: var(--bg-body);
+        min-height: calc(100vh - 200px);
+    }
+
+    .group-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: var(--space-8) var(--space-6);
+    }
+
+    .breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--font-size-sm);
+        margin-bottom: var(--space-4);
+    }
+
+    .breadcrumb a {
+        color: var(--text-light);
+        text-decoration: none;
+        transition: color var(--transition-fast);
+    }
+
+    .breadcrumb a:hover {
+        color: var(--primary-color);
+    }
+
+    .breadcrumb-separator {
+        color: var(--text-muted);
+    }
+
+    .group-header {
+        margin-bottom: var(--space-6);
+    }
+
+    .group-header h1 {
+        font-size: var(--font-size-2xl);
+        font-weight: 700;
+        color: var(--text-dark);
+        letter-spacing: -0.02em;
+        margin-bottom: var(--space-1);
+    }
+
+    .group-header p {
+        color: var(--text-light);
+        font-size: var(--font-size-sm);
+    }
+
+    .group-card {
+        background: var(--bg-white);
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-lg);
+        padding: var(--space-6);
+    }
+
+    .form-group {
+        margin-bottom: var(--space-5);
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: var(--space-2);
+        color: var(--text-dark);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+    }
+
+    .form-input,
+    .form-textarea {
+        width: 100%;
+        padding: var(--space-3);
+        border: 1.5px solid var(--border-color);
+        border-radius: var(--radius-md);
+        font-size: var(--font-size-sm);
+        font-family: inherit;
+        transition: all var(--transition-fast);
+        background: var(--bg-white);
+    }
+
+    .form-input:focus,
+    .form-textarea:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 3px var(--primary-50);
+        outline: none;
+    }
+
+    .form-input::placeholder,
+    .form-textarea::placeholder {
+        color: var(--text-muted);
+    }
+
+    .form-textarea {
+        min-height: 100px;
+        resize: vertical;
+    }
+
+    .form-help {
+        display: block;
+        margin-top: var(--space-2);
+        color: var(--text-muted);
+        font-size: var(--font-size-xs);
+    }
+
+    .form-actions {
+        display: flex;
+        gap: var(--space-3);
+        justify-content: flex-end;
+        margin-top: var(--space-6);
+    }
+
+    .btn {
+        padding: var(--space-3) var(--space-5);
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: var(--font-size-sm);
+        cursor: pointer;
+        transition: all var(--transition-fast);
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-primary {
+        background: var(--primary-color);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+
+    .btn-secondary {
+        background: var(--bg-subtle);
+        color: var(--text-dark);
+        border: 1px solid var(--border-color);
+    }
+
+    .btn-secondary:hover {
+        background: var(--bg-body);
+    }
+
+    .alert {
+        padding: var(--space-3);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--space-4);
+    }
+
+    .alert-error {
+        background: #fef2f2;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
+    }
+
+    .alert-success {
+        background: #f0fdf4;
+        border: 1px solid #86efac;
+        color: #16a34a;
+    }
+
+    @media (max-width: 640px) {
+        .group-container {
+            padding: var(--space-4);
+        }
+
+        .group-card {
+            padding: var(--space-4);
+        }
+
+        .form-actions {
+            flex-direction: column-reverse;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="group-page">
+    <div class="group-container">
+        <nav class="breadcrumb">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <span class="breadcrumb-separator">›</span>
+            <a href="{% url 'messaging:inbox' %}">Messages</a>
+            <span class="breadcrumb-separator">›</span>
+            <span>Create Group</span>
+        </nav>
+
+        <div class="group-header">
+            <h1>Create Group Chat</h1>
+            <p>Start a conversation with multiple students using their UVA emails</p>
+        </div>
+
+        <div class="group-card">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-error{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="form-group">
+                    <label for="name" class="form-label">
+                        Group Name (Optional)
+                    </label>
+                    <input type="text" 
+                           id="name"
+                           name="name" 
+                           class="form-input"
+                           placeholder="e.g., CS Study Group, Roommate Search">
+                    <span class="form-help">Give your group chat a memorable name</span>
+                </div>
+
+                <div class="form-group">
+                    <label for="participants" class="form-label">
+                        Participant Emails <span style="color: var(--error-color);">*</span>
+                    </label>
+                    <textarea 
+                           id="participants"
+                           name="participants" 
+                           class="form-textarea"
+                           placeholder="user1@virginia.edu, user2@virginia.edu, user3@virginia.edu"
+                           required></textarea>
+                    <span class="form-help">Enter UVA email addresses separated by commas. You'll be automatically added to the group.</span>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{% url 'messaging:inbox' %}" class="btn btn-secondary">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem;">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                        </svg>
+                        Create Group Chat
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
